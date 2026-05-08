@@ -1,0 +1,28 @@
+#parallax-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+.parallax-layer {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.dev-mode {
+  overflow: unset !important;
+  transform: scale(0.5);
+
+  outline: blue solid 1px !important;
+}
+
+.dev-mode>* {
+  outline: red solid 1px !important;
+}

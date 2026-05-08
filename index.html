@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Sarah Kazi</title>
+</head>
+
+<body>
+  <div id="parallax-root">
+    <!-- Linked to generated layers by main.ts -->
+    <div id="background-texture"></div>
+    <img id="bg-gaz-planet" class="bg-planet" src="/planet5.gif" alt="Planet">
+    <img id="bg-black-hole" class="bg-planet" src="/planet6.gif" alt="Planet">
+    <img id="bg-asteroid-1" class="bg-asteroid" src="/asteroid1.png" alt="Planet">
+    <img id="bg-asteroid-2" class="bg-asteroid" src="/asteroid2.png" alt="Planet">
+
+    <div id="title" class="fade-initial-1">
+      <h1 class="animated-text"><span>Hey, I'm </span>Sarah<span> :D</span></h1>
+      <p id="subtitle">Welcome to my little space on the internet!</p>
+    </div>
+
+    <div id="planet-1" class="planet" style="--content: about-me;">
+      <img src="/planet11.gif" alt="Planet">
+      <h2>About Me</h2>
+      <p></p>
+    </div>
+    <div id="planet-2" class="planet" style="--content: projects; --anchor-y: 2;">
+      <img src="/planet4.gif" alt="Planet">
+      <h2>Projects</h2>
+      <p></p>
+    </div>
+    <div id="planet-3" class="planet" style="--content: links;">
+      <img src="/planet3.gif" alt="Planet">
+      <h2>Links</h2>
+      <p></p>
+    </div>
+    <div id="planet-4" class="planet" style="--content: tech-stack; --anchor-y: 1.5;">
+      <img src="/planet1.gif" alt="Planet">
+      <h2>Tech Stack</h2>
+      <p></p>
+    </div>
+    <div id="planet-5" class="planet" style="--content: paintings; --anchor-y: 2;">
+      <img src="/planet7.gif" alt="Planet">
+      <h2>Paintings</h2>
+      <p></p>
+    </div>
+    <div id="planet-6" class="planet" style="--content: clicks; --anchor-y: 1;">
+      <img src="/planet8.gif" alt="Planet">
+      <h2>Clicks</h2>
+      <p></p>
+    </div>
+    <div id="planet-7" class="planet" style="--content: playlists; --anchor-y: 1.8;">
+      <img src="/planet9.gif" alt="Planet">
+      <h2>Playlists</h2>
+      <p></p>
+    </div>
+    <div id="planet-8" class="planet" style="--content: blogs; --anchor-y: 2.2;">
+      <img src="/planet10.gif" alt="Planet">
+      <h2>Blogs</h2>
+      <p></p>
+    </div>
+    <div id="planet-9" class="planet" style="--content: timeline; --anchor-y: 1.3;">
+      <img src="/planet6.gif" alt="Planet">
+      <h2>Timeline</h2>
+      <p></p>
+    </div>
+
+    <div id="go-back-button" class="glassy-background">
+      <p>Deorbit</p>
+    </div>
+
+    <section id="links" class="planet-content">
+      <h1 class="animated-text">Connect <span>With Me</span></h1>
+      <main>
+        <div class="links-grid">
+          <a href="https://github.com/Sarah-Kazi" target="_blank" class="link-card link-github">
+            <img src="/github.svg" alt="github logo">
+            <span>GitHub</span>
+          </a>
+          <a href="https://www.linkedin.com/in/sarah-kazi-308784351/" target="_blank" class="link-card link-linkedin">
+            <img src="/linkedin.svg" alt="linkedin logo">
+            <span>LinkedIn</span>
+          </a>
+          <a href="mailto:sarahkazi12806@gmail.com" target="_blank" class="link-card link-email">
+            <img src="/mail.png" alt="email icon">
+            <span>Email</span>
+          </a>
+        </div>
+      </main>
+    </section>
+
+    <section id="about-me" class="planet-content">
+      <main>
+        <div class="term">
+          <div class="term-bar">
+            <div class="term-dots">
+              <span class="term-dot close"></span>
+              <span class="term-dot min"></span>
+              <span class="term-dot max"></span>
+            </div>
+            <span class="term-title">sarah@portfolio -- zsh</span>
+          </div>
+          <div class="term-body" id="term-body">
+            <p class="term-motd">spacefolio terminal -- type <span class="tc-cmd">help</span> to get started</p>
+            <div id="term-history"></div>
+            <div class="term-row">
+              <span class="tc-prompt">sarah@portfolio</span><span class="tc-sep">:</span><span class="tc-path">~</span><span class="tc-sep">$&nbsp;</span><input id="term-input" class="term-input" type="text" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <section id="projects" class="planet-content">
+      <main id="projects-container">
+        <section id="project-template" class="project glassy-background">
+          <div class="project-main-content">
+            <div class="project-header">
+              <img src="bookmark.svg" alt="bookmark icon">
+              <a href="https://github.com/Sarah-Kazi">project-title</a>
+              <p>Status</p>
+            </div>
+            <p>Project Description</p>
+            <div class="project-language">
+              <div></div>
+              <p>lang</p>
+            </div>
+          </div>
+          <div class="project-footer">
+            <div class="project-hard-tags">
+            </div>
+            <div class="project-soft-tags">
+            </div>
+            <p>Start Date - End Date • Role</p>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <section id="tech-stack" class="planet-content">
+      <h1 class="animated-text">Tech <span>Stack</span></h1>
+      <main>
+        <div class="glassy-background">
+          <h3>Languages</h3>
+          <p>JavaScript, TypeScript, Python, C++, C, HTML, CSS</p>
+          <h3>Frameworks & Libraries</h3>
+          <p>React, Next.js, Node.js, Express, Vite, Docker</p>
+          <h3>Tools & Technologies</h3>
+          <p>Git, LLVM, Boost.Asio, Nginx, AWS, MongoDB, PostgreSQL</p>
+        </div>
+      </main>
+    </section>
+
+    <section id="paintings" class="planet-content">
+      <h1 class="animated-text">My <span>Paintings</span></h1>
+      <main>
+        <div class="glassy-background">
+          <p>Coming soon! I'm working on showcasing my digital and traditional artwork here.</p>
+        </div>
+      </main>
+    </section>
+
+    <section id="clicks" class="planet-content">
+      <h1 class="animated-text">Photo <span>Clicks</span></h1>
+      <main>
+        <div class="glassy-background">
+          <p>My photography collection coming soon! Capturing moments through my lens.</p>
+        </div>
+      </main>
+    </section>
+
+    <section id="playlists" class="planet-content">
+      <h1 class="animated-text">My <span>Playlists</span></h1>
+      <main>
+        <div class="glassy-background">
+          <p>Coding playlists, study beats, and favorite tracks coming soon!</p>
+        </div>
+      </main>
+    </section>
+
+    <section id="blogs" class="planet-content">
+      <h1 class="animated-text">Blog <span>Posts</span></h1>
+      <main>
+        <div class="glassy-background">
+          <p>My thoughts on tech, programming, and life coming soon!</p>
+        </div>
+      </main>
+    </section>
+
+    <section id="timeline" class="planet-content">
+      <h1 class="animated-text">My <span>Timeline</span></h1>
+      <main>
+        <div class="glassy-background">
+          <p>My journey through tech and life coming soon!</p>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <div id="overlay"></div>
+  <div id="load-overlay"></div>
+
+  <footer class="fade-initial-1">
+    <p>© 2026 Sarah Kazi</p>
+  </footer>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
