@@ -51,10 +51,13 @@ export function initializeCursor() {
   let outerRingX = mouseX;
   let outerRingY = mouseY;
 
+  let activeSparks = 0;
+
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
-    if (Math.random() < 0.22) createSpark(e.clientX, e.clientY);
+    // Rarer + capped so fast moves don't flood the DOM with box-shadowed sparks.
+    if (activeSparks < 26 && Math.random() < 0.12) createSpark(e.clientX, e.clientY);
   });
 
   document.addEventListener('mousedown', (e) => {
@@ -91,21 +94,21 @@ export function initializeCursor() {
       const dx = Math.cos(angle) * speed;
       const dy = Math.sin(angle) * speed;
       const color = sparkColors[Math.floor(Math.random() * sparkColors.length)];
-      spark.style.left = x + 'px';
-      spark.style.top = y + 'px';
       spark.style.width = size + 'px';
       spark.style.height = size + 'px';
       spark.style.background = color;
       spark.style.boxShadow = `0 0 ${size * 3}px ${color}`;
+      spark.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
       document.body.appendChild(spark);
+      activeSparks++;
 
       const duration = 400 + Math.random() * 300;
       const start = performance.now();
       function animateSpark(time: number) {
         const progress = (time - start) / duration;
-        if (progress >= 1) { spark.remove(); return; }
-        spark.style.left = (x + dx * progress) + 'px';
-        spark.style.top = (y + dy * progress) + 'px';
+        if (progress >= 1) { spark.remove(); activeSparks--; return; }
+        const px = x + dx * progress, py = y + dy * progress;
+        spark.style.transform = `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`;
         spark.style.opacity = String((1 - progress) * (1 - progress));
         requestAnimationFrame(animateSpark);
       }
@@ -124,15 +127,10 @@ export function initializeCursor() {
     outerRingX += (mouseX - outerRingX) * 0.08;
     outerRingY += (mouseY - outerRingY) * 0.08;
 
-    cursor.style.left = cursorX + 'px';
-    cursor.style.top = cursorY + 'px';
-    cursorRing.style.left = ringX + 'px';
-    cursorRing.style.top = ringY + 'px';
-    cursorRingOuter.style.left = outerRingX + 'px';
-    cursorRingOuter.style.top = outerRingY + 'px';
-
-    cursorRing.style.transform = `translate(-50%, -50%) rotate(${frame * 2}deg)`;
-    cursorRingOuter.style.transform = `translate(-50%, -50%) rotate(${-frame * 1.3}deg)`;
+    // Position via transform only (GPU compositing, no layout/paint per frame).
+    cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
+    cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%) rotate(${frame * 2}deg)`;
+    cursorRingOuter.style.transform = `translate3d(${outerRingX}px, ${outerRingY}px, 0) translate(-50%, -50%) rotate(${-frame * 1.3}deg)`;
 
     for (let i = 0; i < particleCount; i++) {
       const prevX = i === 0 ? cursorX : particlePositions[i - 1].x;
@@ -140,8 +138,7 @@ export function initializeCursor() {
       const lerpFactor = 0.25 - i * 0.015;
       particlePositions[i].x += (prevX - particlePositions[i].x) * lerpFactor;
       particlePositions[i].y += (prevY - particlePositions[i].y) * lerpFactor;
-      particles[i].style.left = particlePositions[i].x + 'px';
-      particles[i].style.top = particlePositions[i].y + 'px';
+      particles[i].style.transform = `translate3d(${particlePositions[i].x}px, ${particlePositions[i].y}px, 0) translate(-50%, -50%)`;
     }
 
     requestAnimationFrame(animate);

@@ -108,6 +108,15 @@ a, button, .planet, .terminal-btn, input, #go-back-button {
   transform: translate(-50%, -50%);
 }
 
+/* Promote the cursor elements to their own GPU layers so their large glow
+   box-shadows are painted once and just composited as they move. */
+.custom-cursor,
+.cursor-ring,
+.cursor-ring-outer,
+.cursor-particle {
+  will-change: transform;
+}
+
 /* === STARDUST SPARKS === */
 .cursor-spark {
   position: fixed;
