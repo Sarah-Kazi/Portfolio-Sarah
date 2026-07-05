@@ -17,14 +17,28 @@ const PAINTINGS: ImageItem[] = [
   { src: '/paintings/3.jpg', title: 'Painting 03' },
   { src: '/paintings/4.jpg', title: 'Painting 04' },
   { src: '/paintings/5.jpg', title: 'Painting 05' },
+  { src: '/paintings/6.jpg', title: 'Painting 06' },
+  { src: '/paintings/7.jpg', title: 'Painting 07' },
+  { src: '/paintings/8.jpg', title: 'Painting 08' },
+  { src: '/paintings/9.jpg', title: 'Painting 09' },
+  { src: '/paintings/10.jpg', title: 'Painting 10' },
+  { src: '/paintings/11.jpg', title: 'Painting 11' },
+  { src: '/paintings/12.jpg', title: 'Painting 12' },
+  { src: '/paintings/13.jpg', title: 'Painting 13' },
+  { src: '/paintings/14.jpg', title: 'Painting 14' },
 ];
 
 const CLICKS: ImageItem[] = [
-  { src: '/clicks/1.jpg', title: 'Click 01' },
-  { src: '/clicks/2.jpg', title: 'Click 02' },
-  { src: '/clicks/3.jpg', title: 'Click 03' },
-  { src: '/clicks/4.jpg', title: 'Click 04' },
-  { src: '/clicks/5.jpg', title: 'Click 05' },
+  { src: '/clicks/1.jpeg', title: 'Click 01' },
+  { src: '/clicks/2.jpeg', title: 'Click 02' },
+  { src: '/clicks/3.jpeg', title: 'Click 03' },
+  { src: '/clicks/4.jpeg', title: 'Click 04' },
+  { src: '/clicks/5.jpeg', title: 'Click 05' },
+  { src: '/clicks/6.jpeg', title: 'Click 06' },
+  { src: '/clicks/7.jpeg', title: 'Click 07' },
+  { src: '/clicks/8.jpeg', title: 'Click 08' },
+  { src: '/clicks/9.jpeg', title: 'Click 09' },
+  { src: '/clicks/10.jpeg', title: 'Click 10' },
 ];
 
 const CONFIGS: CarouselConfig[] = [
@@ -39,6 +53,10 @@ const indices: Record<string, number> = Object.fromEntries(
 
 // Whichever carousel was opened most recently - keyboard arrows / Esc target it.
 let focusedId: string | null = null;
+
+// Parallax handle, so fullscreen can freeze the drifting scene behind it.
+type ParallaxLike = { setMouseTrackingEnabled(enabled: boolean): void };
+let parallaxRef: ParallaxLike | null = null;
 
 
 
@@ -111,6 +129,7 @@ function renderImage(id: string) {
 function positionCarousel(id: string) {
   const cfg = findConfig(id);
   if (!cfg) return;
+  if (isFullscreen(id)) return;   // fullscreen fills the viewport via CSS, no pinning
   const anchor = $(cfg.anchorId);
   const root   = $(id);
   if (!anchor || !root) return;
@@ -120,6 +139,44 @@ function positionCarousel(id: string) {
   // transform: translate(0, -50%).
   root.style.left = `${rect.right + 65}px`;
   root.style.top  = `${rect.top + rect.height / 2}px`;
+}
+
+function isFullscreen(id: string): boolean {
+  return $(id)?.classList.contains('gc-fullscreen') ?? false;
+}
+
+function setFullscreen(id: string, on: boolean) {
+  const root = $(id);
+  if (!root) return;
+  root.classList.toggle('gc-fullscreen', on);
+  // Inline left/top from positionCarousel would override the CSS inset:0, so
+  // clear them going in; positionCarousel re-pins them on the way out.
+  if (on) { root.style.left = ''; root.style.top = ''; }
+  const fsBtn = root.querySelector('.gc-fs') as HTMLElement | null;
+  if (fsBtn) {
+    fsBtn.textContent = on ? '⤡' : '⤢';
+    fsBtn.title = on ? 'Exit full screen' : 'Full screen';
+  }
+  if (!on) positionCarousel(id);   // re-pin to the moon after leaving fullscreen
+  const fs = anyFullscreen();
+  // Freeze the drifting parallax and hide the Deorbit button while fullscreen.
+  parallaxRef?.setMouseTrackingEnabled(!fs);
+  const deorbit = $('go-back-button');
+  if (deorbit) {
+    // Only restore it when the gallery is still open (trackActive) — otherwise
+    // this fires during gallery close and would re-show a hidden button.
+    if (fs) deorbit.style.display = 'none';
+    else if (trackActive) deorbit.style.display = 'block';
+  }
+}
+
+function toggleFullscreen(id: string) {
+  setFullscreen(id, !isFullscreen(id));
+  focusedId = id;
+}
+
+function anyFullscreen(): boolean {
+  return CONFIGS.some(c => isFullscreen(c.id));
 }
 
 
@@ -135,6 +192,7 @@ function open(id: string) {
 }
 
 function close(id: string) {
+  setFullscreen(id, false);
   $(id)?.classList.remove('active');
   if (focusedId === id) {
     // Pass focus to whichever other carousel is still open.
@@ -237,7 +295,8 @@ function stopTracking() {
 
 
 
-export default function initializeGallery() {
+export default function initializeGallery(parallax?: ParallaxLike) {
+  parallaxRef = parallax ?? null;
   const moonP = $('moon-paintings');
   const moonC = $('moon-clicks');
   if (moonP) {
@@ -255,12 +314,20 @@ export default function initializeGallery() {
     root.querySelector('.gc-close')?.addEventListener('click', () => close(cfg.id));
     root.querySelector('.gc-prev') ?.addEventListener('click', () => step(cfg.id, -1));
     root.querySelector('.gc-next') ?.addEventListener('click', () => step(cfg.id, +1));
-    // Clicking anywhere on a carousel gives it keyboard focus.
-    root.addEventListener('click', () => { focusedId = cfg.id; });
+    root.querySelector('.gc-fs')   ?.addEventListener('click', () => toggleFullscreen(cfg.id));
+    // Clicking a carousel focuses it; clicking the fullscreen backdrop exits.
+    root.addEventListener('click', (e) => {
+      focusedId = cfg.id;
+      if (isFullscreen(cfg.id) && e.target === root) setFullscreen(cfg.id, false);
+    });
   }
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { if (anyOpen()) closeAll(); return; }
+    if (e.key === 'Escape') {
+      if (anyFullscreen()) { CONFIGS.forEach(c => setFullscreen(c.id, false)); return; }
+      if (anyOpen()) closeAll();
+      return;
+    }
     if (!focusedId) return;
     if (e.key === 'ArrowRight') step(focusedId, +1);
     if (e.key === 'ArrowLeft')  step(focusedId, -1);

@@ -65,7 +65,7 @@ if (!isMobile) {
   animateText(parallax.getLayers()[0].element);
   initializeProjects();
   initializeSkills();
-  initializeGallery();
+  initializeGallery(parallax);
   initializePlaylists();
   initializeBlogs();
   initializeTimeline();

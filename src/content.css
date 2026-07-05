@@ -763,6 +763,73 @@
   transform: rotate(90deg);
 }
 
+/* Full-screen toggle (mirrors the close button, opposite corner) */
+.gc-fs {
+  position: absolute;
+  top: -13px;
+  left: -13px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(30, 20, 60, 0.95), rgba(10, 5, 22, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 0.82rem;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  z-index: 3;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  transition: background 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+
+.gc-fs:hover {
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.45), rgba(140, 88, 217, 0.45));
+  border-color: rgba(125, 211, 252, 0.75);
+  transform: scale(1.1);
+}
+
+/* Full-screen mode: lift the carousel to fill the viewport (like the blog). */
+.gallery-carousel.gc-fullscreen {
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 5vh 6vw;
+  box-sizing: border-box;
+  background: rgba(5, 3, 14, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: none;
+}
+
+.gc-fullscreen .gc-frame {
+  width: min(1200px, 92vw);
+  height: min(78vh, 860px);
+}
+
+.gc-fullscreen .gc-nav   { top: 50%; }
+.gc-fullscreen .gc-prev  { left: 3vw; }
+.gc-fullscreen .gc-next  { right: 3vw; }
+.gc-fullscreen .gc-close { top: 22px; right: 22px; }
+.gc-fullscreen .gc-fs    { top: 22px; right: 64px; left: auto; }
+.gc-fullscreen .gc-meta  { margin-top: 2px; }
+
 /* Meta block: caption with side rules + pill-style dots */
 .gc-meta {
   display: flex;

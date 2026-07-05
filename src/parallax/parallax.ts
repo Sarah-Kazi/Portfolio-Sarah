@@ -193,7 +193,6 @@ export default class Parrallax {
   }
 
   protected addMouseListener() {
-    console.log('Parallax started with mouse');
     document.addEventListener('mousemove', e => {
       if (!this.mouseTrackingEnabled) return;
       this.mousePos = {
@@ -208,8 +207,6 @@ export default class Parrallax {
   }
 
   protected addTouchListener() {
-    console.log('Parallax started for touch devices');
-
     let lastTouch = {
       x: 0,
       y: 0,
