@@ -1,126 +1,172 @@
 import Parrallax from '../parallax/parallax';
 
-function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const cx = w / 2;
-  const cy = h / 2;
-  const radius = Math.min(w, h) * 0.46;
+function gaussRand(): number {
+  const u1 = Math.max(Math.random(), 1e-10);
+  const u2 = Math.random();
+  return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
 
-  ctx.clearRect(0, 0, w, h);
+function draw(ctx: CanvasRenderingContext2D, size: number) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const R  = size * 0.36;
+  const flatness = 0.46;
 
-  // Nebula layers — deep purples, teals, magentas
+  ctx.clearRect(0, 0, size, size);
+
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(0.2);
+  ctx.scale(1, flatness);
+  const haze = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 1.15);
+  haze.addColorStop(0,   'rgba(60,20,120,0.20)');
+  haze.addColorStop(0.5, 'rgba(30,10,80, 0.10)');
+  haze.addColorStop(1,   'rgba(0, 0, 0,  0)');
+  ctx.fillStyle = haze;
+  ctx.beginPath();
+  ctx.arc(0, 0, R * 1.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
   const nebulae = [
-    { x: cx,        y: cy,        rx: radius,        ry: radius * 0.50, angle:  0.18, rgb: '60,0,160',     a: 0.28 },
-    { x: cx - 100,  y: cy + 80,   rx: radius * 0.72, ry: radius * 0.42, angle: -0.30, rgb: '0,80,180',     a: 0.20 },
-    { x: cx + 120,  y: cy - 90,   rx: radius * 0.60, ry: radius * 0.36, angle:  0.52, rgb: '120,30,220',   a: 0.17 },
-    { x: cx - 60,   y: cy - 120,  rx: radius * 0.50, ry: radius * 0.30, angle: -0.15, rgb: '0,160,200',    a: 0.13 },
-    { x: cx + 60,   y: cy + 140,  rx: radius * 0.46, ry: radius * 0.27, angle:  0.40, rgb: '180,20,110',   a: 0.10 },
-    { x: cx - 20,   y: cy + 20,   rx: radius * 0.32, ry: radius * 0.20, angle:  0.00, rgb: '80,0,180',     a: 0.32 },
-    { x: cx + 80,   y: cy - 40,   rx: radius * 0.38, ry: radius * 0.22, angle:  0.70, rgb: '0,200,180',    a: 0.09 },
+    { ox:  R*0.42, oy:  R*0.18, rx: R*0.55, ry: R*0.28, angle:  0.40, rgb:'80,20,180',   op:0.15 },
+    { ox: -R*0.44, oy: -R*0.18, rx: R*0.55, ry: R*0.27, angle: -0.40, rgb:'30,50,180',   op:0.14 },
+    { ox:  R*0.18, oy:  R*0.46, rx: R*0.40, ry: R*0.22, angle:  0.90, rgb:'0,90,170',    op:0.11 },
+    { ox: -R*0.20, oy: -R*0.44, rx: R*0.38, ry: R*0.20, angle: -0.90, rgb:'130,20,100',  op:0.10 },
+    { ox:  R*0.62, oy: -R*0.10, rx: R*0.28, ry: R*0.16, angle:  0.20, rgb:'0,130,150',   op:0.09 },
+    { ox: -R*0.58, oy:  R*0.12, rx: R*0.28, ry: R*0.15, angle: -0.20, rgb:'150,30,80',   op:0.08 },
+    { ox:  0,      oy:  0,      rx: R*0.28, ry: R*0.14, angle:  0.00, rgb:'70,0,140',    op:0.22 },
+    { ox:  R*0.25, oy: -R*0.35, rx: R*0.22, ry: R*0.12, angle:  0.60, rgb:'0,100,180',   op:0.08 },
   ];
 
   for (const n of nebulae) {
     ctx.save();
-    ctx.translate(n.x, n.y);
+    ctx.translate(cx + n.ox, cy + n.oy * flatness);
     ctx.rotate(n.angle);
     ctx.scale(1, n.ry / n.rx);
-    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, n.rx);
-    grad.addColorStop(0, `rgba(${n.rgb},${n.a})`);
-    grad.addColorStop(0.5, `rgba(${n.rgb},${n.a * 0.4})`);
-    grad.addColorStop(1, `rgba(${n.rgb},0)`);
-    ctx.fillStyle = grad;
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, n.rx);
+    g.addColorStop(0,   `rgba(${n.rgb},${n.op})`);
+    g.addColorStop(0.5, `rgba(${n.rgb},${(n.op * 0.35).toFixed(3)})`);
+    g.addColorStop(1,   `rgba(${n.rgb},0)`);
+    ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(0, 0, n.rx, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 
-  // Star colors — cyan/purple/lavender palette, no plain white
-  const starColors = [
-    '34,211,238',   // cyan
-    '139,92,246',   // purple
-    '196,181,253',  // lavender
-    '167,139,250',  // soft violet
-    '224,242,255',  // ice blue
-    '34,211,238',   // cyan again (weighted)
-    '103,232,249',  // light cyan
-    '192,132,252',  // light purple
-  ];
 
-  const pick = () => starColors[Math.floor(Math.random() * starColors.length)];
+  const winding  = Math.PI * 2.8;
+  const numArms  = 2;
+  const armStars = 900;
 
-  // Spiral arm stars (2 arms, winding outward)
-  const armCount = 2;
-  for (let i = 0; i < 520; i++) {
-    const arm = i % armCount;
-    const t = Math.pow(Math.random(), 1.4);
-    const dist = t * radius * 0.92;
-    const spread = (Math.random() - 0.5) * 0.7;
-    const armAngle = (arm * Math.PI) + t * Math.PI * 2.6 + spread;
-    const x = cx + Math.cos(armAngle) * dist;
-    const y = cy + Math.sin(armAngle) * dist * 0.50;
-    const size = Math.random() * 1.5 + 0.2;
-    const opacity = (1 - t * 0.65) * (0.35 + Math.random() * 0.65);
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${pick()},${opacity.toFixed(2)})`;
-    ctx.fill();
+  const innerColors = ['220,210,255','210,205,255','230,220,255','240,235,255'];
+  const midColors   = ['180,215,255','160,200,255','200,190,255','220,225,255','190,220,255'];
+  const outerColors = ['200,155,255','255,165,205','150,235,255','180,205,255','210,160,255'];
+
+  for (let arm = 0; arm < numArms; arm++) {
+    const baseAngle = Math.PI * arm;
+    for (let j = 0; j < armStars; j++) {
+      const t      = Math.pow(Math.random(), 0.85);
+      const dist   = t * R * 0.96;
+      const spread = gaussRand() * 0.26 * (0.35 + t * 0.85);
+      const angle  = baseAngle + t * winding + spread;
+
+      const x = cx + Math.cos(angle) * dist;
+      const y = cy + Math.sin(angle) * dist * flatness;
+
+      const sz  = (1.8 - t * 0.6) * Math.random() + 0.2;
+      const op  = (0.95 - t * 0.45) * (0.45 + Math.random() * 0.55);
+
+      const palette = t < 0.25 ? innerColors : t < 0.65 ? midColors : outerColors;
+      const col = palette[Math.floor(Math.random() * palette.length)];
+
+      ctx.beginPath();
+      ctx.arc(x, y, sz, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${col},${op.toFixed(2)})`;
+      ctx.fill();
+    }
   }
 
-  // Scattered halo stars
-  for (let i = 0; i < 200; i++) {
+
+  const discColors = ['190,185,255','200,195,255','180,190,255','170,180,255'];
+  for (let i = 0; i < 500; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const dist = Math.pow(Math.random(), 2.2) * radius * 0.90;
-    const x = cx + Math.cos(angle) * dist;
-    const y = cy + Math.sin(angle) * dist * 0.50;
-    const size = Math.random() * 0.9 + 0.1;
-    const t = dist / (radius * 0.90);
-    const opacity = (1 - t * 0.8) * (0.15 + Math.random() * 0.35);
+    const dist  = Math.pow(Math.random(), 1.2) * R * 0.90;
+    const x  = cx + Math.cos(angle) * dist;
+    const y  = cy + Math.sin(angle) * dist * flatness;
+    const sz = Math.random() * 0.8 + 0.1;
+    const op = (0.08 + Math.random() * 0.18) * (1 - dist / R * 0.5);
+    const c  = discColors[Math.floor(Math.random() * discColors.length)];
     ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${pick()},${opacity.toFixed(2)})`;
+    ctx.arc(x, y, sz, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${c},${op.toFixed(2)})`;
     ctx.fill();
   }
 
-  // Core glow — deep violet/cyan, intentionally NOT white
-  const coreR = radius * 0.22;
-  const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-  coreGrad.addColorStop(0,    'rgba(190,120,255,0.60)');
-  coreGrad.addColorStop(0.15, 'rgba(100,50,240,0.42)');
-  coreGrad.addColorStop(0.40, 'rgba(34,211,238,0.18)');
-  coreGrad.addColorStop(0.70, 'rgba(60,0,160,0.08)');
-  coreGrad.addColorStop(1,    'rgba(0,0,0,0)');
-  ctx.fillStyle = coreGrad;
-  ctx.beginPath();
-  ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-  ctx.fill();
 
-  // Inner bright nucleus — violet, not white
-  const pointR = coreR * 0.28;
-  const pointGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pointR);
-  pointGrad.addColorStop(0,   'rgba(210,170,255,0.92)');
-  pointGrad.addColorStop(0.4, 'rgba(140,70,240,0.55)');
-  pointGrad.addColorStop(1,   'rgba(0,0,0,0)');
-  ctx.fillStyle = pointGrad;
-  ctx.beginPath();
-  ctx.arc(cx, cy, pointR, 0, Math.PI * 2);
-  ctx.fill();
+  const fieldColors = ['200,205,255','220,215,255','180,205,255','210,205,255'];
+  for (let i = 0; i < 300; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = Math.pow(Math.random(), 1.6) * R * 0.92;
+    const x  = cx + Math.cos(angle) * dist;
+    const y  = cy + Math.sin(angle) * dist * flatness;
+    const sz = Math.random() * 0.9 + 0.1;
+    const op = (0.10 + Math.random() * 0.22) * (1 - dist / R * 0.6);
+    const c  = fieldColors[Math.floor(Math.random() * fieldColors.length)];
+    ctx.beginPath();
+    ctx.arc(x, y, sz, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${c},${op.toFixed(2)})`;
+    ctx.fill();
+  }
+
 }
 
 export default function initializeGalaxy(parallax: Parrallax) {
+  // Inject rotation keyframe once
+  if (!document.getElementById('galaxy-spin-style')) {
+    const style = document.createElement('style');
+    style.id = 'galaxy-spin-style';
+    style.textContent = `
+      @keyframes galaxySpin {
+        from { transform: rotate(0deg);   }
+        to   { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Wrapper: centers the canvas via absolute positioning
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:absolute;top:50%;left:50%;pointer-events:none;';
+
+  // Canvas: rotation animation, centered via negative margins (set in resize)
   const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+  canvas.style.cssText = [
+    'display:block',
+    'pointer-events:none',
+    'transform-origin:center',
+    'animation:galaxySpin 220s linear infinite',
+    'opacity:0.90',
+  ].join(';');
+
+  wrapper.appendChild(canvas);
 
   const bgLayer = parallax.getLayers()[4];
-  bgLayer.element.insertBefore(canvas, bgLayer.element.firstChild);
+  bgLayer.element.insertBefore(wrapper, bgLayer.element.firstChild);
 
   const ctx = canvas.getContext('2d')!;
 
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    draw(ctx, canvas.width, canvas.height);
+    const size = Math.round(Math.max(window.innerWidth, window.innerHeight) * 1.55);
+    canvas.width  = size;
+    canvas.height = size;
+    canvas.style.marginLeft = `${-size / 2}px`;
+    canvas.style.marginTop  = `${-size / 2}px`;
+    draw(ctx, size);
   }
 
   window.addEventListener('resize', resize);
-  requestAnimationFrame(resize);
+  resize();
 }

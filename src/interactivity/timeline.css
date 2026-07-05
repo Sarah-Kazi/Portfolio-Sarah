@@ -1,0 +1,111 @@
+/* Timeline: the life of a star
+ * The evolving star is drawn on a body-mounted canvas by timeline.ts. These
+ * are the DOM bits: the milestone detail card and the lifecycle rail, both
+ * RAF-positioned below the star. */
+
+.tl-card {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  width: min(460px, 88vw);
+  box-sizing: border-box;
+  padding: 6px 24px;
+  text-align: center;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 520;
+  transition: opacity 0.3s ease;
+}
+.tl-card.visible { opacity: 1; visibility: visible; }
+
+.tl-card-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+.tl-card-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 8px;
+}
+.tl-card-blurb {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #c7d0db;
+  margin-top: 12px;
+}
+
+/* Lifecycle rail */
+.tl-rail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  width: min(760px, 92vw);
+  height: 56px;
+  z-index: 520;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+.tl-rail.visible { opacity: 1; visibility: visible; }
+
+/* The connecting line + comet head are drawn on the canvas (see drawRail in
+   timeline.ts) as a constellation; the rail element only holds the nodes. */
+.tl-node {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.tl-node-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 3px rgba(5, 3, 18, 0.6);
+  opacity: 0.55;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+.tl-node.active .tl-node-dot {
+  opacity: 1;
+  transform: scale(1.5);
+  box-shadow: 0 0 14px var(--c), 0 0 0 3px rgba(5, 3, 18, 0.6);
+}
+.tl-node-label {
+  margin-top: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(190, 225, 250, 0.5);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.tl-node.active .tl-node-label { color: #fff; }
+.tl-node-year {
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.54rem;
+  color: rgba(190, 225, 250, 0.38);
+}
+
+#go-back-button.timeline-deorbit {
+  position: fixed;
+  z-index: 1500;
+}

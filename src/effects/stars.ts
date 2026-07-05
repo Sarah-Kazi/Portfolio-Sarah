@@ -15,10 +15,11 @@ function createStarElt(layerRoot: SVGElement, layerDepth: number, layerCount: nu
   star.setAttribute('fill', 'white');
   star.setAttribute('class', 'star');
 
-  // Add glowing animation with random delay
-  const animationDuration = 2 + Math.random() * 3; // 2-5 seconds
-  const animationDelay = Math.random() * 5; // 0-5 seconds delay
-  star.style.animation = `starGlow ${animationDuration}s ease-in-out ${animationDelay}s infinite`;
+  if (Math.random() < 0.2) {
+    const animationDuration = 2 + Math.random() * 3;
+    const animationDelay = Math.random() * 5;
+    star.style.animation = `starGlow ${animationDuration}s ease-in-out ${animationDelay}s infinite`;
+  }
 
   layerRoot.appendChild(star);
   return star;

@@ -327,7 +327,7 @@ div#load-overlay {
 
 #title h1 {
   text-shadow: 0 5px 0 #58aed9;
-  font-size: 3rem;
+  font-size: 6rem;
   margin: 0;
 }
 
@@ -349,7 +349,7 @@ div#load-overlay {
 
 @media screen and (max-width: 768px) {
   #title h1 {
-    font-size: 3rem;
+    font-size: 3.6rem;
     text-shadow: 0 3px 0 #58aed9;
   }
 

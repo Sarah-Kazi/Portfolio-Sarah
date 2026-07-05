@@ -55,6 +55,16 @@
   height: 180px;
 }
 
+#planet-1 img {
+  width: 300px;
+  height: 300px;
+}
+
+#planet-4 img {
+  width: 300px;
+  height: 300px;
+}
+
 .planet:not(.active-planet) img:hover {
   cursor: pointer;
   filter: drop-shadow(0 2px 0 white) drop-shadow(0 -2px 0 white) drop-shadow(2px 0 0 white) drop-shadow(-2px 0 0 white);
@@ -143,6 +153,12 @@
   opacity: 0;
 }
 
+/* Gallery: keep the planet at full brightness so the two moons read as
+ * orbiting a visible Mars-like planet rather than a dimmed silhouette. */
+#planet-5.active-planet {
+  filter: none;
+}
+
 #go-back-button {
   position: absolute;
   top: calc(50% + 160px);
@@ -168,4 +184,34 @@
   cursor: pointer;
   background-color: rgba(28, 48, 65, 0.855);
 }
+
+#go-back-button.on-planet {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1500;
+}
+
+/* Gallery: deorbit lives on <body> (mounted there by gallery.ts) and its
+ * left/top/transform are written every frame to track the planet's position.
+ * Just need fixed positioning + a higher z-index so it sits above the moons. */
+#go-back-button.gallery-deorbit {
+  position: fixed;
+  z-index: 1500;
+}
+
+/* Projects: deorbit lives on <body> (mounted there by projects.ts) and is
+ * repositioned every frame just above the planet, so it travels with the deck
+ * as one scene (same approach as the gallery deorbit). */
+#go-back-button.projects-deorbit {
+  position: fixed;
+  z-index: 1500;
+}
+
+/* Playlists: deorbit lives on <body> (mounted there by playlists.ts) and is
+ * repositioned every frame just above the planet, like the projects deck. */
+#go-back-button.playlists-deorbit {
+  position: fixed;
+  z-index: 1500;
+}
+
 

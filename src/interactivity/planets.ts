@@ -1,5 +1,6 @@
 import animateText from '../effects/animatedText';
 import TemporaryLayersParallax from '../parallax/temporaryLayersParallax';
+import { navigate, onRoute } from '../router';
 
 import './planets.css';
 
@@ -39,11 +40,16 @@ function getPlanetContentElt(planet: Element) {
   return document.getElementById(contentId);
 }
 
-function parallaxZoomToPlanet(planetIndex: number, parallax: TemporaryLayersParallax) {
+function parallaxZoomToPlanet(
+  planetIndex: number,
+  parallax: TemporaryLayersParallax,
+  originMulX: number = -4,
+  originMulY: number = originMulX,
+) {
   const planetPosition = getPlanetPositionOffset(planetIndex);
   const newOrigin = {
-    x: planetPosition.x * -4,
-    y: planetPosition.y * -4,
+    x: planetPosition.x * originMulX,
+    y: planetPosition.y * originMulY,
   };
   parallax.setOrigin(newOrigin);
   parallax.setZoom(3);
@@ -84,17 +90,6 @@ function createContentParallaxLayer(parallax: TemporaryLayersParallax, contentBo
   contentBody.style.display = 'block';
 }
 
-function createFocusedStateListener(unfocus: () => void) {
-  goBackButton.addEventListener('click', unfocus);
-  history.pushState({}, '');
-  window.addEventListener('popstate', unfocus);
-}
-
-function deleteFocusedStateListeners(unfocus: () => void) {
-  goBackButton.removeEventListener('click', unfocus);
-  window.removeEventListener('popstate', unfocus);
-}
-
 function hidePlanetContent(planet: Element) {
   const contentBody = getPlanetContentElt(planet);
   if (contentBody == null) return;
@@ -109,33 +104,59 @@ export default function registerPlanetsInteractivity(parallax: TemporaryLayersPa
   const planets = document.getElementsByClassName('planet');
   hideGoBackButton();
 
+  // contentId → open/close controls, so the router can drive any section.
+  const controllers: Record<string, { open: () => void; close: () => void }> = {};
+
   for (let i = 0; i < planets.length; i++) {
     const planet = planets[i];
+    const contentId = getPlanetContentId(planet).trim();
 
     const focusPlanet = (): void => {
-      parallaxZoomToPlanet(i, parallax);
+      if (contentId === 'gallery') {
+        parallaxZoomToPlanet(i, parallax, -4.3, -3.0);
+      } else {
+        parallaxZoomToPlanet(i, parallax);
+      }
       showGoBackButton();
-      if (getPlanetContentId(planet).trim() === 'about-me') hideGoBackButton();
+      if (contentId === 'about-me') hideGoBackButton();
+      if (contentId === 'tech-stack') goBackButton.classList.add('on-planet');
       hideTitle();
       createContentParallaxLayer(parallax, getPlanetContentElt(planet));
       planet.classList.add('active-planet');
     };
 
     const unfocusPlanet = (): void => {
+      parallax.setMouseTrackingEnabled(true);
       parallaxZoomReset(parallax);
-      deleteFocusedStateListeners(unfocusPlanet);
       showTitle();
       hideGoBackButton();
+      goBackButton.classList.remove('on-planet');
       parallax.deleteAllTemporaryLayers();
       hidePlanetContent(planet);
       planet.classList.remove('active-planet');
     };
 
+    controllers[contentId] = {
+      open:  () => { if (!isPlanetFocused(planet)) focusPlanet(); },
+      close: () => { if (isPlanetFocused(planet)) unfocusPlanet(); },
+    };
+
+    // Clicks don't mutate the view directly; they navigate and the router reacts.
     planet.addEventListener('click', () => {
-      if (!isPlanetFocused(planet)) {
-        focusPlanet();
-        createFocusedStateListener(unfocusPlanet);
-      }
+      if (!isPlanetFocused(planet)) navigate(contentId);
     });
   }
+
+  // Deorbit / go-back closes whatever's open by returning to the home route.
+  goBackButton.addEventListener('click', () => navigate(null));
+
+  // The hash is the source of truth: open/close the matching section to suit.
+  let activeId: string | null = null;
+  onRoute(({ section }) => {
+    const target = section && controllers[section] ? section : null;
+    if (target === activeId) return;
+    if (activeId) controllers[activeId].close();
+    if (target) controllers[target].open();
+    activeId = target;
+  });
 }

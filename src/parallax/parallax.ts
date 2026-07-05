@@ -90,6 +90,7 @@ export default class Parrallax {
   protected root: HTMLElement;
 
   protected mousePos: Position;
+  protected mouseTrackingEnabled: boolean = true;
 
   protected isTouchDevice: boolean;
 
@@ -194,6 +195,7 @@ export default class Parrallax {
   protected addMouseListener() {
     console.log('Parallax started with mouse');
     document.addEventListener('mousemove', e => {
+      if (!this.mouseTrackingEnabled) return;
       this.mousePos = {
         x: e.clientX,
         y: e.clientY,
@@ -214,6 +216,7 @@ export default class Parrallax {
     };
 
     document.addEventListener('touchmove', e => {
+      if (!this.mouseTrackingEnabled) return;
       const touch = e.touches[0];
       const touchPos = {
         x: touch.clientX,
@@ -273,6 +276,10 @@ export default class Parrallax {
     if (this.isTouchDevice) this.addTouchListener();
     else this.addMouseListener();
     this.lerpInFactorTarget = 1;
+  }
+
+  public setMouseTrackingEnabled(enabled: boolean) {
+    this.mouseTrackingEnabled = enabled;
   }
 
   protected getLayerPaddingToScreen(layer: number): Size {

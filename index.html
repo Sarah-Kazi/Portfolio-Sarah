@@ -13,9 +13,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Sarah Kazi</title>
+
+
+  <style>
+    #mobile-gate { display: none; }
+    @media (max-width: 768px), (hover: none) and (pointer: coarse) {
+      #mobile-gate {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 32px;
+        gap: 16px;
+        background: #050312;
+        color: #e8ddc4;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      /* Hide (and stop) the cursor-driven experience behind the gate. */
+      #parallax-root, footer, .gallery-carousel,
+      #overlay, #load-overlay { display: none !important; }
+      body { overflow: hidden; }
+    }
+    #mobile-gate .mg-emoji { font-size: 3rem; }
+    #mobile-gate .mg-title {
+      font-size: 1.25rem; font-weight: 700; letter-spacing: 0.03em; color: #fff;
+    }
+    #mobile-gate .mg-sub {
+      font-size: 0.9rem; line-height: 1.65; color: #b9c2cf; max-width: 30ch;
+    }
+    #mobile-gate .mg-tag {
+      margin-top: 6px; font-size: 0.7rem; letter-spacing: 0.24em;
+      text-transform: uppercase; color: #7dd3fc;
+    }
+  </style>
 </head>
 
 <body>
+  <div id="mobile-gate">
+    
+    <div class="mg-title">Best viewed on a bigger screen</div>
+    <p class="mg-sub">Work in progress, check it out on your laptop/desktop! :D</p>
+    <div class="mg-tag">- Sarah</div>
+  </div>
+
   <div id="parallax-root">
     <!-- Linked to generated layers by main.ts -->
     <div id="background-texture"></div>
@@ -45,18 +89,13 @@
       <p></p>
     </div>
     <div id="planet-4" class="planet" style="--content: tech-stack; --anchor-y: 1.5;">
-      <img src="/planet1.gif" alt="Planet">
-      <h2>Tech Stack</h2>
+      <img src="/planet10.gif" alt="Planet">
+      <h2>Skills</h2>
       <p></p>
     </div>
-    <div id="planet-5" class="planet" style="--content: paintings; --anchor-y: 2;">
+    <div id="planet-5" class="planet" style="--content: gallery; --anchor-y: 2;">
       <img src="/planet7.gif" alt="Planet">
-      <h2>Paintings</h2>
-      <p></p>
-    </div>
-    <div id="planet-6" class="planet" style="--content: clicks; --anchor-y: 1;">
-      <img src="/planet8.gif" alt="Planet">
-      <h2>Clicks</h2>
+      <h2>Gallery</h2>
       <p></p>
     </div>
     <div id="planet-7" class="planet" style="--content: playlists; --anchor-y: 1.8;">
@@ -65,12 +104,12 @@
       <p></p>
     </div>
     <div id="planet-8" class="planet" style="--content: blogs; --anchor-y: 2.2;">
-      <img src="/planet10.gif" alt="Planet">
+      <img src="/planet12.gif" alt="Planet">
       <h2>Blogs</h2>
       <p></p>
     </div>
     <div id="planet-9" class="planet" style="--content: timeline; --anchor-y: 1.3;">
-      <img src="/planet6.gif" alt="Planet">
+      <img src="/planet2.gif" alt="Planet">
       <h2>Timeline</h2>
       <p></p>
     </div>
@@ -121,94 +160,59 @@
       </main>
     </section>
 
-    <section id="projects" class="planet-content">
-      <main id="projects-container">
-        <section id="project-template" class="project glassy-background">
-          <div class="project-main-content">
-            <div class="project-header">
-              <img src="bookmark.svg" alt="bookmark icon">
-              <a href="https://github.com/Sarah-Kazi">project-title</a>
-              <p>Status</p>
-            </div>
-            <p>Project Description</p>
-            <div class="project-language">
-              <div></div>
-              <p>lang</p>
-            </div>
-          </div>
-          <div class="project-footer">
-            <div class="project-hard-tags">
-            </div>
-            <div class="project-soft-tags">
-            </div>
-            <p>Start Date - End Date • Role</p>
-          </div>
-        </section>
-      </main>
-    </section>
+
+    <section id="projects" class="planet-content"></section>
 
     <section id="tech-stack" class="planet-content">
-      <h1 class="animated-text">Tech <span>Stack</span></h1>
-      <main>
-        <div class="glassy-background">
-          <h3>Languages</h3>
-          <p>JavaScript, TypeScript, Python, C++, C, HTML, CSS</p>
-          <h3>Frameworks & Libraries</h3>
-          <p>React, Next.js, Node.js, Express, Vite, Docker</p>
-          <h3>Tools & Technologies</h3>
-          <p>Git, LLVM, Boost.Asio, Nginx, AWS, MongoDB, PostgreSQL</p>
-        </div>
-      </main>
+     
     </section>
 
-    <section id="paintings" class="planet-content">
-      <h1 class="animated-text">My <span>Paintings</span></h1>
-      <main>
-        <div class="glassy-background">
-          <p>Coming soon! I'm working on showcasing my digital and traditional artwork here.</p>
-        </div>
-      </main>
+    <section id="gallery" class="planet-content gallery-content">
+      <div id="moon-paintings" class="moon" data-target="paintings">
+        <img src="/4285984748.gif" alt="Paintings moon">
+        <h2>Paintings</h2>
+      </div>
+      <div id="moon-clicks" class="moon" data-target="clicks">
+        <img src="/3744434590.gif" alt="Photography moon">
+        <h2>Clicks</h2>
+      </div>
     </section>
 
-    <section id="clicks" class="planet-content">
-      <h1 class="animated-text">Photo <span>Clicks</span></h1>
-      <main>
-        <div class="glassy-background">
-          <p>My photography collection coming soon! Capturing moments through my lens.</p>
-        </div>
-      </main>
-    </section>
+  
+    <section id="playlists" class="planet-content"></section>
 
-    <section id="playlists" class="planet-content">
-      <h1 class="animated-text">My <span>Playlists</span></h1>
-      <main>
-        <div class="glassy-background">
-          <p>Coding playlists, study beats, and favorite tracks coming soon!</p>
-        </div>
-      </main>
-    </section>
+ 
+    <section id="blogs" class="planet-content"></section>
 
-    <section id="blogs" class="planet-content">
-      <h1 class="animated-text">Blog <span>Posts</span></h1>
-      <main>
-        <div class="glassy-background">
-          <p>My thoughts on tech, programming, and life coming soon!</p>
-        </div>
-      </main>
-    </section>
-
-    <section id="timeline" class="planet-content">
-      <h1 class="animated-text">My <span>Timeline</span></h1>
-      <main>
-        <div class="glassy-background">
-          <p>My journey through tech and life coming soon!</p>
-        </div>
-      </main>
-    </section>
+    <!-- Comet-trajectory timeline is drawn on a body-mounted canvas by
+         timeline.ts; this section is the show/hide trigger. -->
+    <section id="timeline" class="planet-content"></section>
   </div>
 
   <div id="overlay"></div>
   <div id="load-overlay"></div>
+
+  <div id="carousel-paintings" class="gallery-carousel" data-anchor="moon-paintings">
+    <div class="gc-frame"></div>
+    <button class="gc-close" aria-label="Close">&times;</button>
+    <button class="gc-nav gc-prev" aria-label="Previous">&lsaquo;</button>
+    <button class="gc-nav gc-next" aria-label="Next">&rsaquo;</button>
+    <div class="gc-meta">
+      <div class="gc-caption"></div>
+      <div class="gc-dots"></div>
+    </div>
+  </div>
+
+  <div id="carousel-clicks" class="gallery-carousel" data-anchor="moon-clicks">
+    <div class="gc-frame"></div>
+    <button class="gc-close" aria-label="Close">&times;</button>
+    <button class="gc-nav gc-prev" aria-label="Previous">&lsaquo;</button>
+    <button class="gc-nav gc-next" aria-label="Next">&rsaquo;</button>
+    <div class="gc-meta">
+      <div class="gc-caption"></div>
+      <div class="gc-dots"></div>
+    </div>
+  </div>
 
   <footer class="fade-initial-1">
     <p>© 2026 Sarah Kazi</p>

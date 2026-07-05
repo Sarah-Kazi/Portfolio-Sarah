@@ -1,0 +1,187 @@
+/* Playlists: the Golden Record
+ * The engraved gold disc spins centre-stage with a tonearm; the 9 playlists
+ * are "The Program". Selecting one drops the stylus and docks the Spotify
+ * player. Built full-screen on <body>; the parallax star field shows through. */
+
+/* Centred inside the #playlists .planet-content section (rides the parallax),
+ * nudged a little below centre. */
+.gr-root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  transform: translateY(40px);
+}
+
+/* The record + tonearm */
+.gr-stage { display: flex; flex-direction: column; align-items: center; }
+
+.gr-record-wrap {
+  position: relative;
+  width: min(440px, 44vw);
+  aspect-ratio: 1;
+}
+.gr-record {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 46px rgba(170, 132, 64, 0.28), 0 8px 28px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+  animation: gr-spin 120s linear infinite;
+}
+.gr-root.playing .gr-record { animation-duration: 20s; }
+@keyframes gr-spin { to { transform: rotate(360deg); } }
+
+/* Tonearm: rests off the record, swings down when a track plays */
+.gr-arm {
+  position: absolute;
+  top: 9%;
+  right: -30px;
+  width: 60%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #8f7544, #5f4a28);   /* aged brass */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  transform-origin: right center;
+  transform: rotate(-34deg);
+  transition: transform 0.7s cubic-bezier(0.5, 0, 0.2, 1);
+  z-index: 5;
+}
+.gr-arm::before {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, #9c8050, #4f3c1e);   /* matte pivot */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.gr-arm-head {
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 17px;
+  border-radius: 2px;
+  background: linear-gradient(#86703f, #4a3818);   /* dull, vintage, no glow */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.gr-root.playing .gr-arm { transform: rotate(-7deg); }
+
+.gr-caption { text-align: center; margin-top: 24px; }
+.gr-caption-main {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #e8c98a;
+  text-shadow: 0 0 12px rgba(232, 201, 140, 0.3);
+}
+.gr-caption-sub {
+  margin-top: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(232, 201, 140, 0.6);
+}
+
+/* The program / player panel */
+.gr-panel {
+  width: min(480px, 92vw);
+  box-sizing: border-box;
+  padding: 30px 34px;
+  border-radius: 14px;
+  background: rgba(18, 13, 6, 0.86);
+  border: 1px solid rgba(184, 146, 63, 0.32);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
+}
+
+.gr-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #e0bd72;
+  padding-bottom: 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(184, 146, 63, 0.25);
+}
+
+.gr-track {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(184, 146, 63, 0.12);
+  padding: 14px 6px;
+  cursor: pointer;
+  color: #f4ecd8;
+}
+.gr-track-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(214, 181, 110, 0.95);
+  flex-shrink: 0;
+}
+.gr-track-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.96rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* Player (shown while a track is broadcasting) */
+.gr-player { display: none; }
+.gr-root.playing .gr-program { display: none; }
+.gr-root.playing .gr-player { display: block; }
+
+.gr-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #cba85f;
+  transition: color 0.2s ease;
+}
+.gr-back:hover { color: #fff; }
+
+.gr-player-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 4px 0 16px;
+}
+.gr-embed iframe { display: block; width: 100%; border: 0; border-radius: 12px; }
+
+/* Deorbit sits lower than the default for this section (still in the parallax
+ * layer like links, just a bigger vertical offset, below the program). */
+#go-back-button.playlists-deorbit {
+  left: calc(50% - 268px);   /* under the disk (left item of the composition) */
+  top: calc(50% + 330px);
+}
+
+/* Hide the custom cursor over the cross-origin Spotify iframe (avoids two cursors) */
+body.cursor-over-embed .custom-cursor,
+body.cursor-over-embed .cursor-ring,
+body.cursor-over-embed .cursor-ring-outer,
+body.cursor-over-embed .cursor-trail-container { opacity: 0 !important; }
