@@ -65,6 +65,13 @@
   height: 300px;
 }
 
+/* These two use 300px sprites with lots of transparent padding, so their
+ * labels sit far below the visible planet. Pull the labels back up. */
+#planet-1 h2,
+#planet-4 h2 {
+  margin-top: -45px;
+}
+
 .planet:not(.active-planet) img:hover {
   cursor: pointer;
   filter: drop-shadow(0 2px 0 white) drop-shadow(0 -2px 0 white) drop-shadow(2px 0 0 white) drop-shadow(-2px 0 0 white);

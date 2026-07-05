@@ -235,14 +235,16 @@ function trackScene() {
 
   const orbitR = rect.width / 2 + 80;
   
-  const angP   = -Math.PI / 4;  // upper-right
-  const angC   =  Math.PI / 4;  // lower-right
- 
   const extraRight = 110;
-  moonP.style.left = `${cx + Math.cos(angP) * orbitR + extraRight}px`;
-  moonP.style.top  = `${cy + Math.sin(angP) * orbitR}px`;
-  moonC.style.left = `${cx + Math.cos(angC) * orbitR + extraRight}px`;
-  moonC.style.top  = `${cy + Math.sin(angC) * orbitR}px`;
+  // Paintings (top) and Clicks (bottom) share the same x and split vertically.
+  // dy is the gap between them — smaller keeps the two moons (and their
+  // carousels) closer so they stay in frame on larger screens.
+  const dx = Math.cos(Math.PI / 4) * orbitR + extraRight;
+  const dy = orbitR * 0.58;
+  moonP.style.left = `${cx + dx}px`;
+  moonP.style.top  = `${cy - dy}px`;
+  moonC.style.left = `${cx + dx}px`;
+  moonC.style.top  = `${cy + dy}px`;
 
   if (deorbit && deorbit.classList.contains('gallery-deorbit')) {
     deorbit.style.left      = `${cx}px`;
@@ -324,8 +326,10 @@ export default function initializeGallery(parallax?: ParallaxLike) {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (anyFullscreen()) { CONFIGS.forEach(c => setFullscreen(c.id, false)); return; }
-      if (anyOpen()) closeAll();
+      // Consume Escape (preventDefault) only when it actually closes something
+      // here, so the planet-level handler can deorbit when nothing's open.
+      if (anyFullscreen()) { CONFIGS.forEach(c => setFullscreen(c.id, false)); e.preventDefault(); return; }
+      if (anyOpen()) { closeAll(); e.preventDefault(); return; }
       return;
     }
     if (!focusedId) return;

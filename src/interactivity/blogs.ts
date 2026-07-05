@@ -162,7 +162,9 @@ export default function initializeBlogs() {
   backBtn.addEventListener('click', () => navigate('blogs'));
   fsBtn.addEventListener('click', () => setFullscreen(!isFs));
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isFs) setFullscreen(false);
+    // Exit fullscreen and consume the key so the planet handler doesn't also
+    // deorbit; when not fullscreen, let Escape fall through to deorbit.
+    if (e.key === 'Escape' && isFs) { setFullscreen(false); e.preventDefault(); }
   });
 
   // Keep Deorbit drifting in the parallax layer (just nudged below the panel).

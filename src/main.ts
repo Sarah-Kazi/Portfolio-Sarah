@@ -24,7 +24,7 @@ import initializeBlogs from './interactivity/blogs.ts';
 import initializeTimeline from './interactivity/timeline.ts';
 import { initializeTerminal } from './effects/terminal.ts';
 import { initializeCursor } from './effects/cursor.ts';
-import { startRouter } from './router.ts';
+import { startRouter, navigate } from './router.ts';
 
 // Desktop-only for now. On phones / touch-only devices the CSS #mobile-gate
 // message is shown instead, and we skip the whole cursor-driven experience so
@@ -71,6 +71,14 @@ if (!isMobile) {
   initializeTimeline();
   initializeTerminal();
   initializeCursor();
+
+  // Escape deorbits whatever planet is open. Registered after every section so
+  // it runs last: gallery/blog get first crack at Escape (closing a carousel or
+  // exiting fullscreen) and mark it handled, so this only fires otherwise.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    if (document.querySelector('.planet.active-planet')) navigate(null);
+  });
 
   startLoadOverlay(() => {
     parallax.startInteraction();
