@@ -13,7 +13,7 @@ interface Project {
 }
 
 
-const PROJECTS: Project[] = [
+export const PROJECTS: Project[] = [
   {
     title: 'NginXray - eBPF/XDP Security Agent for Nginx',
     description: 'A kernel-space security agent for Nginx built with eBPF/XDP and libbpf (CO-RE) for portable, line-rate packet inspection: LPM-trie IPv4/IPv6 blocklisting, OpenSSL uprobe TLS inspection to capture cleartext at the SSL_write/read boundary, and a Go control plane for live rule updates over BPF maps.',
@@ -87,7 +87,7 @@ const MAX_VISIBLE   = 2.6;   // |rel| beyond which a card fades fully out
 const FOCUS_LERP    = 0.12;  // easing toward the focused index each frame
 const DEORBIT_GAP   = 18;    // px above the planet's top edge
 
-function buildCard(p: Project): HTMLElement {
+export function buildCard(p: Project): HTMLElement {
   const card = document.createElement('div');
   card.className = 'proj-card';
 

@@ -25,15 +25,22 @@ import initializeTimeline from './interactivity/timeline.ts';
 import { initializeTerminal } from './effects/terminal.ts';
 import { initializeCursor } from './effects/cursor.ts';
 import { startRouter, navigate } from './router.ts';
+import initializeMobile from './mobile/mobile.ts';
 
-// Desktop-only for now. On phones / touch-only devices the CSS #mobile-gate
-// message is shown instead, and we skip the whole cursor-driven experience so
-// its parallax + canvas loops don't run and drain the battery.
-const isMobile = window.matchMedia(
-  '(max-width: 768px), (hover: none) and (pointer: coarse)',
-).matches;
+// One branch, decided at load. Phones and touch-only devices get the
+// self-contained mobile experience (src/mobile); everything else gets the
+// desktop parallax scene, untouched. If the viewport later crosses the
+// boundary (DevTools device mode, exotic resizes), reload into the right one.
+const MOBILE_QUERY = '(max-width: 768px), (hover: none) and (pointer: coarse)';
+const isMobile = window.matchMedia(MOBILE_QUERY).matches;
 
-if (!isMobile) {
+window.addEventListener('resize', () => {
+  if (window.matchMedia(MOBILE_QUERY).matches !== isMobile) location.reload();
+});
+
+if (isMobile) {
+  initializeMobile();
+} else {
   const parallax = new TemporaryLayersParallax({
     layerCount: 5,
     displacementFactor: 1.4,
@@ -67,7 +74,7 @@ if (!isMobile) {
   initializeSkills();
   initializeGallery(parallax);
   initializePlaylists();
-  initializeBlogs();
+  initializeBlogs(parallax);
   initializeTimeline();
   initializeTerminal();
   initializeCursor();

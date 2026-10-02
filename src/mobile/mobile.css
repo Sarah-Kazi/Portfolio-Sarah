@@ -1,0 +1,529 @@
+/* Mobile experience. Fully self-contained: everything here is scoped under
+ * body.is-mobile / #m-home / #m-overlay, so none of it can leak into the
+ * desktop experience. The home is a plain scrolling document (vertical solar
+ * system); sections open as full-screen overlays. */
+
+body.is-mobile {
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  cursor: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The desktop scene stays in the DOM (its sections are reused) but never
+ * renders on mobile. */
+body.is-mobile #parallax-root,
+body.is-mobile #overlay,
+body.is-mobile #load-overlay,
+body.is-mobile > footer,
+body.is-mobile .gallery-carousel {
+  display: none !important;
+}
+
+/* Fixed starfield behind everything; sheets are 1px elements whose stars are
+ * box-shadow squares in vmax units, so both orientations stay covered. */
+#m-stars {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.m-star-sheet {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+}
+
+.m-star-sheet.s2 { animation: m-twinkle 4.5s ease-in-out infinite alternate; }
+.m-star-sheet.s3 { animation: m-twinkle 6s ease-in-out 1.2s infinite alternate; }
+
+@keyframes m-twinkle {
+  from { opacity: 1; }
+  to   { opacity: 0.45; }
+}
+
+/* ================= Home: hero + vertical solar system ================= */
+
+#m-home {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+
+.m-hero {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.m-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  text-shadow: 0 3px 0 #58aed9;
+}
+
+.m-hero p {
+  margin: 14px 0 0;
+  font-size: 1rem;
+  opacity: 0.85;
+  text-shadow: 0 1px 0 #58aed9;
+}
+
+.m-hint {
+  margin-top: 42px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(190, 225, 250, 0.65);
+  animation: m-hint-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes m-hint-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+.m-system {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 10px 0 30px;
+}
+
+.m-planet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  padding: 8px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  animation: m-float 7s ease-in-out infinite alternate;
+}
+
+.m-planet:nth-child(odd)  { align-self: flex-start; margin-left: 7vw; }
+.m-planet:nth-child(even) { align-self: flex-end;  margin-right: 7vw; }
+
+/* Stagger the float so the system feels alive without any script. */
+.m-planet:nth-child(2n) { animation-delay: 1.4s; }
+.m-planet:nth-child(3n) { animation-delay: 2.6s; }
+
+@keyframes m-float {
+  from { transform: translateY(-5px); }
+  to   { transform: translateY(5px); }
+}
+
+.m-planet img {
+  width: 124px;
+  height: 124px;
+  transform: scale(calc(0.84 + 0.26 * var(--focus, 1)));
+  filter: brightness(calc(0.7 + 0.35 * var(--focus, 1)));
+  transition: transform 0.15s linear, filter 0.15s linear;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  pointer-events: none;
+}
+
+/* These two sprites carry a lot of transparent padding, so they render
+ * smaller than the rest at equal size; compensate. */
+.m-planet[data-section="about-me"] img,
+.m-planet[data-section="tech-stack"] img {
+  width: 178px;
+  height: 178px;
+  margin: -24px;
+}
+
+.m-planet-name {
+  opacity: calc(0.5 + 0.5 * var(--focus, 1));
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-shadow: 0 3px 0 #8c58d9;
+}
+
+.m-footer {
+  padding: 26px 0 calc(30px + env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ================= Section overlay ================= */
+
+#m-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  background:
+    radial-gradient(circle at 20% 22%, rgba(140, 88, 217, 0.16), transparent 46%),
+    radial-gradient(circle at 82% 74%, rgba(88, 174, 217, 0.12), transparent 46%),
+    linear-gradient(224deg, #160a2b 0%, #251458 55%, #0c0519 100%);
+}
+
+#m-overlay[hidden] { display: none; }
+
+.m-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left));
+  border-bottom: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Once content scrolls under it, the bar gets a solid edge. */
+#m-overlay.m-scrolled .m-bar {
+  background: rgba(14, 7, 30, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.m-back {
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(28, 48, 65, 0.55);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.m-back:active { background: rgba(28, 48, 65, 0.9); }
+
+.m-bar-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(190, 225, 250, 0.7);
+}
+
+.m-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 14px calc(16px + env(safe-area-inset-right)) calc(30px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+}
+
+/* Desktop sections are absolutely centred for the parallax layers; inside the
+ * overlay they become normal flow. */
+#m-overlay .planet-content {
+  position: static;
+  transform: none;
+  pointer-events: auto;
+  width: 100%;
+}
+
+/* ---- Reused sections: fit adjustments only, all scoped here ---- */
+
+#m-overlay .links-grid {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#m-overlay .term { width: 100%; }
+#m-overlay .term-body { height: 56vh; padding: 16px 14px 14px; }
+#m-overlay .term-input,
+#m-overlay .term-row { font-size: 16px; }   /* stops iOS focus zoom */
+
+#m-overlay .gr-root {
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  transform: none;
+}
+#m-overlay .gr-record-wrap { width: min(180px, 46vw); }
+#m-overlay .gr-panel { width: 100%; padding: 18px 18px; }
+#m-overlay .gr-track { padding: 12px 4px; }
+
+#m-overlay .blog-panel {
+  width: 100%;
+  max-height: none;
+  margin: 0 auto;
+}
+
+/* The overlay is already full screen. */
+#m-overlay .blog-fs { display: none; }
+
+/* Terminal command chips. */
+.m-term-chips {
+  align-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 2px 4px;
+  scrollbar-width: none;
+}
+.m-term-chips::-webkit-scrollbar { display: none; }
+.m-term-chips .m-chip {
+  flex: 0 0 auto;
+  min-height: 36px;
+  color: #eaf4ff;
+  cursor: pointer;
+}
+.m-term-chips .m-chip:active { background: rgba(125, 211, 252, 0.25); }
+
+/* ================= Mobile-native sections ================= */
+
+/* Projects: the same cards as desktop, stacked in normal flow. */
+#m-overlay .m-proj .proj-card {
+  position: static;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 16px;
+  transform: none;
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Skills: three constellation groups as chip lists. */
+.m-skills section { margin-bottom: 26px; }
+
+.m-skills h3 {
+  margin: 0 0 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c, #7dd3fc);
+  text-shadow: 0 0 14px rgba(125, 211, 252, 0.35);
+}
+
+.m-chiprow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.m-chip {
+  padding: 8px 13px;
+  border: 1px solid rgba(var(--rgb, 125, 211, 252), 0.45);
+  border-radius: 999px;
+  background: rgba(var(--rgb, 125, 211, 252), 0.09);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: #eaf4ff;
+}
+
+/* Gallery: horizontal snap strips + a lightbox. */
+#m-overlay #gallery .moon { display: none; }
+
+.m-gallery h3 {
+  margin: 6px 0 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #c4b5fd;
+}
+
+.m-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 16px;
+  margin-bottom: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.m-thumb {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 64vw;
+  max-width: 300px;
+  height: 46vw;
+  max-height: 220px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(15, 8, 32, 0.6);
+  cursor: pointer;
+}
+
+.m-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.m-lightbox {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 2, 12, 0.96);
+}
+
+.m-lightbox[hidden] { display: none; }
+
+.m-lightbox img {
+  max-width: 94vw;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: transform 0.22s ease-out;
+}
+.m-lightbox img.m-lb-live { transition: none; }
+
+.m-lb-cap {
+  position: absolute;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: rgba(220, 235, 250, 0.8);
+}
+
+.m-lb-close,
+.m-lb-prev,
+.m-lb-next {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(28, 48, 65, 0.6);
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.m-lb-close { top: calc(14px + env(safe-area-inset-top)); right: 14px; }
+.m-lb-prev  { left: 10px;  top: 50%; transform: translateY(-50%); }
+.m-lb-next  { right: 10px; top: 50%; transform: translateY(-50%); }
+
+/* Timeline: the star's life as a vertical journey. */
+.m-timeline {
+  position: relative;
+  padding-left: 26px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.m-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, #a78bfa, #7dd3fc);
+  opacity: 0.18;
+}
+
+/* Bright copy of the line, grown by script as you scroll. */
+.m-tl-fill {
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  width: 2px;
+  height: 0;
+  max-height: calc(100% - 16px);
+  background: linear-gradient(180deg, #a78bfa, #7dd3fc);
+  box-shadow: 0 0 8px rgba(125, 211, 252, 0.6);
+}
+
+.m-milestone { position: relative; padding-bottom: 30px; }
+.m-milestone:last-child { padding-bottom: 6px; }
+
+.m-milestone::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c, #7dd3fc);
+  box-shadow: 0 0 12px var(--c, #7dd3fc);
+  opacity: 0.3;
+  transform: scale(0.7);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.m-milestone h4,
+.m-milestone p { transition: opacity 0.3s; }
+.m-milestone:not(.m-lit) h4,
+.m-milestone:not(.m-lit) p { opacity: 0.55; }
+
+.m-milestone.m-lit::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.m-milestone .m-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c, #7dd3fc);
+}
+
+.m-milestone h4 {
+  margin: 6px 0 8px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.m-milestone p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #c7d0db;
+}
+
+/* Respect the system "reduce motion" setting: no drifting, twinkling or
+ * scroll-driven scaling. */
+@media (prefers-reduced-motion: reduce) {
+  .m-star-sheet,
+  .m-planet,
+  .m-hint { animation: none !important; }
+  .m-planet img { transform: none; filter: none; transition: none; }
+  .m-planet-name { opacity: 1; }
+  .m-milestone::before,
+  .m-milestone h4,
+  .m-milestone p,
+  .m-lightbox img { transition: none; }
+}

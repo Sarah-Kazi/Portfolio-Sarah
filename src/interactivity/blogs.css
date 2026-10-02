@@ -70,6 +70,7 @@
   height: 100vh;
   border: none;
   border-radius: 0;
+  background: #000;
   z-index: 50000;
 }
 .blog-fullscreen .blog-scroll {
@@ -249,4 +250,22 @@
  * just pushed below it instead of the default centred offset. */
 #go-back-button.blogs-deorbit {
   top: calc(50% + 37vh);
+}
+
+.blog-art-body figure { margin: 1.6em 0; }
+
+.blog-art-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.blog-art-body .blog-embed {
+  display: block;
+  width: 100%;
+  margin: 1.6em 0;
+  border: 0;
+  border-radius: 12px;
 }

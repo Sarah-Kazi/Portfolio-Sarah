@@ -82,7 +82,10 @@ const PANEL_MARKUP = `
     </div>
   </div>`;
 
-export default function initializeBlogs() {
+// Parallax handle, so fullscreen can freeze the drifting scene behind it.
+type ParallaxLike = { setMouseTrackingEnabled(enabled: boolean): void };
+
+export default function initializeBlogs(parallax?: ParallaxLike) {
   const section = document.getElementById('blogs');
   if (!section) return;
 
@@ -146,6 +149,7 @@ export default function initializeBlogs() {
   function setFullscreen(on: boolean) {
     if (on === isFs) return;
     isFs = on;
+    parallax?.setMouseTrackingEnabled(!on);
     if (on) {
       document.body.appendChild(panel);
       panel.classList.add('blog-fullscreen');

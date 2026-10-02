@@ -546,8 +546,11 @@ export function initializeTerminal() {
 
   body.addEventListener('click', () => input.focus());
 
+  // Skip the autofocus on touch devices: it would pop the on-screen keyboard
+  // over the terminal the moment the section opens. Tapping it still focuses.
+  const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   const section = document.getElementById('about-me');
-  if (section) {
+  if (section && !isTouch) {
     new MutationObserver(() => {
       if (section.style.display === 'block') setTimeout(() => input.focus(), 100);
     }).observe(section, { attributes: true, attributeFilter: ['style'] });

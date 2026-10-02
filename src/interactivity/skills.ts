@@ -18,13 +18,13 @@ interface Group {
   haloR: number;
 }
 
-const GROUPS: Group[] = [
+export const GROUPS: Group[] = [
   { name: 'LANGUAGES',        color: '#7dd3fc', rgb: '125,211,252', haloX: 0.58, haloY: 0.24, haloR: 0.18 },
   { name: 'MACHINE LEARNING', color: '#fcd34d', rgb: '252,211,77',  haloX: 0.85, haloY: 0.30, haloR: 0.20 },
   { name: 'WEB DEVELOPMENT',  color: '#c4b5fd', rgb: '196,181,253', haloX: 0.73, haloY: 0.78, haloR: 0.24 },
 ];
 
-const STARS: Star[] = [
+export const STARS: Star[] = [
   
   { name: 'Python',     x: 0.58, y: 0.13, size: 10, group: 0, phase: 0.0, labelDir: 't' },
   { name: 'C',          x: 0.50, y: 0.22, size: 7,  group: 0, phase: 0.7, labelDir: 'l' },

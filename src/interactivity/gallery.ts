@@ -1,6 +1,6 @@
 
 
-interface ImageItem {
+export interface ImageItem {
   src: string;
   title: string;
 }
@@ -11,7 +11,7 @@ interface CarouselConfig {
   set: ImageItem[];
 }
 
-const PAINTINGS: ImageItem[] = [
+export const PAINTINGS: ImageItem[] = [
   { src: '/paintings/1.jpg', title: 'Painting 01' },
   { src: '/paintings/2.jpg', title: 'Painting 02' },
   { src: '/paintings/3.jpg', title: 'Painting 03' },
@@ -28,7 +28,7 @@ const PAINTINGS: ImageItem[] = [
   { src: '/paintings/14.jpg', title: 'Painting 14' },
 ];
 
-const CLICKS: ImageItem[] = [
+export const CLICKS: ImageItem[] = [
   { src: '/clicks/1.jpeg', title: 'Click 01' },
   { src: '/clicks/2.jpeg', title: 'Click 02' },
   { src: '/clicks/3.jpeg', title: 'Click 03' },

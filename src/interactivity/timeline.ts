@@ -16,7 +16,7 @@ interface Milestone {
   blurb: string;
 }
 
-const PHASES: Phase[] = [
+export const PHASES: Phase[] = [
   { short: 'Nebula',    core: [190, 160, 225], halo: [150, 90, 205], coreR: 9,  haloR: 120 },
   { short: 'Protostar', core: [255, 150, 80],  halo: [225, 115, 55], coreR: 20, haloR: 95 },
   { short: 'Main Seq.', core: [255, 246, 214], halo: [255, 206, 120], coreR: 36, haloR: 130 },
@@ -26,7 +26,7 @@ const PHASES: Phase[] = [
 ];
 
 
-const MILESTONES: Milestone[] = [
+export const MILESTONES: Milestone[] = [
   { year: '2024', title: 'The first spark',     blurb: 'Joined PES University as a Computer Science student.' },
   { year: '2024', title: 'Taking shape',        blurb: 'Attended a PESU I/O course on Neural Networks.' },
   { year: '2025', title: 'Finding my rhythm',   blurb: 'Joined ACM PESUECC Student Chapter. Hacknight repository maintainer, Submitted bluffmaster for an internal ACM contest.' },
