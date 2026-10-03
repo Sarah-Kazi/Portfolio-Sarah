@@ -4,6 +4,28 @@
 <head>
   <meta charset="UTF-8" />
 
+  <!-- A shared blog-post link (#/blogs/<slug>) should land on the post, not
+       flash the intro first. Until the app has opened the post (it removes
+       this class), show plain black. Inline so it applies before any CSS or
+       JS has downloaded. -->
+  <script>
+    if (/^#\/blogs\/[^/]+/.test(location.hash)) document.documentElement.classList.add('deep-post');
+  </script>
+  <style>
+    html.deep-post,
+    html.deep-post body { background: #000; }
+    html.deep-post body > * { visibility: hidden; }
+
+    /* Phones get their own layout from JS (it adds .is-mobile); until then
+       the desktop markup would show half-styled, so keep to the dark space
+       colour instead. Same query as MOBILE_QUERY in main.ts. */
+    @media (max-width: 768px), (hover: none) and (pointer: coarse) {
+      html:not(.is-mobile):not(.deep-post),
+      html:not(.is-mobile):not(.deep-post) body { background: #05020c; }
+      html:not(.is-mobile) body > * { visibility: hidden; }
+    }
+  </style>
+
   <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -40,6 +40,8 @@ window.addEventListener('resize', () => {
 
 if (isMobile) {
   initializeMobile();
+  // A deep-linked post is open now; drop the black cover (see index.html).
+  document.documentElement.classList.remove('deep-post');
 } else {
   const parallax = new TemporaryLayersParallax({
     layerCount: 5,
@@ -75,6 +77,9 @@ if (isMobile) {
   initializeGallery(parallax);
   initializePlaylists();
   initializeBlogs(parallax, { readerOnDeepLink: true });
+  // A deep-linked post is now open full screen over the intro; drop the
+  // black cover (see index.html).
+  document.documentElement.classList.remove('deep-post');
   initializeTimeline();
   initializeTerminal();
   initializeCursor();

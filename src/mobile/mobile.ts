@@ -284,7 +284,7 @@ function buildTimeline() {
 // Tappable commands under the terminal, so it's usable without typing on a
 // phone keyboard. Tapping runs the command without focusing the input, so
 // the keyboard stays down.
-const TERM_CHIPS = ['help', 'ls', 'cat about.txt', 'cat interests.txt', 'whoami', 'cowsay hi', 'wordle', 'meow', 'nyan', 'clear'];
+const TERM_CHIPS = ['help', 'ls', 'cat about.txt', 'cat interests.txt', 'whoami', 'cowsay hi', 'wordle', 'meow', 'nyan', 'clear', 'deorbit'];
 
 function buildTermChips() {
   const term = document.querySelector('#about-me .term');
