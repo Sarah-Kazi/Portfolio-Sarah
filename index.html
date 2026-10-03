@@ -12,6 +12,11 @@
     if (/^#\/blogs\/[^/]+/.test(location.hash)) document.documentElement.classList.add('deep-post');
   </script>
   <style>
+    /* Nothing shows until style.css has loaded (its body rule makes the page
+       visible again). In dev, Vite injects the CSS from JS, and without this
+       the raw unstyled page flashed first. */
+    body { visibility: hidden; }
+
     html.deep-post,
     html.deep-post body { background: #000; }
     html.deep-post body > * { visibility: hidden; }

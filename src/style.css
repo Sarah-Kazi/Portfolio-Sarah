@@ -13,6 +13,9 @@ body {
   overflow: hidden;
   background: linear-gradient(224deg, #1a0b2e 0%, #2d1b69 50%, #0f0620 100%);
   cursor: none;
+  /* Reveals the page once this stylesheet is in (index.html hides it until
+   * then, so the unstyled markup never flashes). */
+  visibility: visible;
 }
 
 /* Hide default cursor on interactive elements */
@@ -289,14 +292,30 @@ div#overlay {
   background: radial-gradient(circle, rgba(0, 0, 0, 0) 60%, rgba(2, 11, 30, 0.4) 100%);
 }
 
+/* Registered so the window can ease to the title's size (set by
+ * loadOverlay.ts) instead of snapping to it. */
+@property --close-width-percent {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 25%;
+}
+
 div#load-overlay {
   background: radial-gradient(circle, rgba(0, 0, 0, 0) var(--close-width-percent, 25%), rgba(255, 255, 255, 1) var(--close-width-percent, 25%));
+  transition: --close-width-percent 0.5s ease-out;
   animation: load-overlay-out 3s ease-in-out forwards;
   animation-delay: 1.5s;
+  /* Held until the scene has been built and drawn once (main.ts adds
+   * .intro-play): that first draw blocks the browser for a moment, and the
+   * zoom would stutter if it were already running. */
+  animation-play-state: paused;
+  will-change: transform;
   z-index: 100;
   height: calc(100vh + 20px);
   transform: translateY(-20px);
 }
+
+html.intro-play div#load-overlay { animation-play-state: running; }
 
 @keyframes load-overlay-out {
   0% {
@@ -441,14 +460,10 @@ footer {
 
 /* Star glowing animation */
 @keyframes starGlow {
-  0%, 100% {
-    opacity: 0.3;
-    filter: brightness(1);
-  }
-  50% {
-    opacity: 1;
-    filter: brightness(1.5) drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
-  }
+  /* Opacity only: a filter here made the browser repaint the whole star
+   * layer every frame. */
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
 }
 
 .star {

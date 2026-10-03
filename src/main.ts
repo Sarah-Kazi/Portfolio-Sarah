@@ -94,6 +94,11 @@ if (isMobile) {
 
   // Planets are placed and Deorbit hidden; reveal them (see index.html).
   document.documentElement.classList.add('scene-ready');
+  // Start the intro zoom only once the scene's first (heavy) frame is on
+  // screen: the second rAF runs after that frame has been drawn.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.documentElement.classList.add('intro-play');
+  }));
 
   startLoadOverlay(() => {
     parallax.startInteraction();
