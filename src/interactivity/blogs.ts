@@ -1,18 +1,7 @@
 
-import { marked } from 'marked';
 import { navigate, onRoute, parseRoute } from '../router';
+import { parsePost, sortPosts, postPath, type Post } from '../blog/parse';
 import './blogs.css';
-
-interface Post {
-  slug: string;
-  title: string;
-  date: string;       // raw YYYY-MM-DD for sorting
-  dateLabel: string;  // human-readable
-  tags: string[];
-  excerpt: string;
-  html: string;       // rendered body
-  readingMin: number;
-}
 
 // Eagerly import every post as a raw string at build time.
 const raws = import.meta.glob('../blog/posts/*.md', {
@@ -21,46 +10,9 @@ const raws = import.meta.glob('../blog/posts/*.md', {
   import: 'default',
 }) as Record<string, string>;
 
-function parsePost(path: string, raw: string): Post {
-  const slug = path.split('/').pop()!.replace(/\.md$/, '');
-
-  const fm = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
-  const metaBlock = fm ? fm[1] : '';
-  const body = (fm ? fm[2] : raw).trim();
-
-  const meta: Record<string, string | string[]> = {};
-  for (const line of metaBlock.split('\n')) {
-    const idx = line.indexOf(':');
-    if (idx === -1) continue;
-    const key = line.slice(0, idx).trim();
-    const val = line.slice(idx + 1).trim();
-    if (val.startsWith('[') && val.endsWith(']')) {
-      meta[key] = val.slice(1, -1).split(',').map(s => s.trim()).filter(Boolean);
-    } else {
-      meta[key] = val.replace(/^["']|["']$/g, '');
-    }
-  }
-
-  const title = (meta.title as string) || slug;
-  const date  = (meta.date as string) || '';
-  const tags  = Array.isArray(meta.tags) ? meta.tags : [];
-  const excerpt = (meta.excerpt as string) || '';
-
-  const words = body.split(/\s+/).filter(Boolean).length;
-  const readingMin = Math.max(1, Math.round(words / 200));
-
-  const dateLabel = date
-    ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-    : '';
-
-  const html = marked.parse(body) as string;
-
-  return { slug, title, date, dateLabel, tags, excerpt, html, readingMin };
-}
-
-const POSTS: Post[] = Object.entries(raws)
-  .map(([path, raw]) => parsePost(path, raw))
-  .sort((a, b) => (a.date < b.date ? 1 : -1));   // newest first
+const POSTS: Post[] = sortPosts(
+  Object.entries(raws).map(([path, raw]) => parsePost(path.split('/').pop()!.replace(/\.md$/, ''), raw)),
+);
 
 const PANEL_MARKUP = `
   <div class="blog-panel">
@@ -164,7 +116,9 @@ export default function initializeBlogs(
   let shareReset = 0;
   shareBtn.addEventListener('click', async () => {
     if (!shownSlug) return;
-    const url = `${location.origin}${location.pathname}#/blogs/${shownSlug}`;
+    // The post's own pre-rendered page: opens instantly, and gets a proper
+    // link preview (title, excerpt, image) in chat apps.
+    const url = `${location.origin}${postPath(shownSlug)}`;
     const title = artTitle.textContent ?? '';
     const flash = (text: string) => {
       shareBtn.textContent = text;

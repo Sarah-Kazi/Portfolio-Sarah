@@ -3,6 +3,7 @@ title: For Jivi
 date: 2026-10-02
 tags: [personal]
 excerpt: 4 months since Jivi passed.
+image: /blog/for-jivi/preview.jpg
 ---
 Hi. It’s 45 minutes to midnight, and it’s the 3rd of October tomorrow. 4 months since Jivi passed. I’m feeling too many things at once. I’ve been wanting to write about her for the longest time, but I could never get myself to sit and gather my thoughts or try to put my feelings into words. It was all too much, and still is. 4 months in and I still don’t know how to deal with grief, but I have gotten better at pretending otherwise.
 
