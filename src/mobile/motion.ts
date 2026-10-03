@@ -63,9 +63,11 @@ export function initTilt(stars: HTMLElement) {
   }
 }
 
-// Sets --focus (0..1) on each planet by how close it is to the screen centre.
+// Sets --focus (0..1) on each planet by how close it is to the screen centre,
+// and its distance label: kilometres that count down as it approaches (the
+// desktop measures from the mouse; here the centre of the screen is "you").
 export function initPlanetFocus(planets: HTMLElement[]) {
-  if (reduceMotion || !planets.length) return;
+  if (!planets.length) return;
 
   let raf = 0;
   function update() {
@@ -73,9 +75,17 @@ export function initPlanetFocus(planets: HTMLElement[]) {
     const mid = window.innerHeight / 2;
     const reach = window.innerHeight * 0.55;
     for (const p of planets) {
-      const r = p.getBoundingClientRect();
-      const f = clamp(1 - Math.abs(r.top + r.height / 2 - mid) / reach, 0, 1);
+      const img = p.querySelector('img') ?? p;
+      const r = img.getBoundingClientRect();
+      const dist = Math.abs(r.top + r.height / 2 - mid);
+      const f = clamp(1 - dist / reach, 0, 1);
       p.style.setProperty('--focus', f.toFixed(3));
+      const km = p.querySelector('.m-planet-km');
+      if (km) {
+        km.innerHTML = dist < r.height * 0.3
+          ? 'tap to orbit'
+          : `${Math.floor(Math.max(dist * 10 - 400, 0))}<span>km</span>`;
+      }
     }
   }
 

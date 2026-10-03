@@ -52,7 +52,7 @@ export const STARS: Star[] = [
   { name: 'Electron',   x: 0.87, y: 0.87, size: 6,  group: 2, phase: 1.3, labelDir: 'r' },
 ];
 
-const LINES: [number, number][] = [
+export const LINES: [number, number][] = [
   
   [0, 1], [1, 3], [3, 4], [4, 2], [2, 0],
   

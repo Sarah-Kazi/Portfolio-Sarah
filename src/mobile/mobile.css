@@ -23,6 +23,55 @@ body.is-mobile .gallery-carousel {
   display: none !important;
 }
 
+/* The desktop scene behind everything: background gradient, the galaxy,
+ * vignette + grain, background planets and asteroids (moved over from the
+ * hidden #parallax-root). Layers are shifted on scroll by scene.ts. */
+#m-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: linear-gradient(224deg, #1a0b2e 0%, #2d1b69 50%, #0f0620 100%);
+}
+
+.m-layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.m-galaxy {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+}
+
+.m-galaxy canvas {
+  display: block;
+  opacity: 0.9;
+  animation: m-galaxy-spin 220s linear infinite;
+}
+
+@keyframes m-galaxy-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+#m-scene #bg-gaz-planet {
+  left: 60%;
+  top: 6vh;
+  width: 118px;
+  height: 118px;
+}
+
+#m-scene #bg-black-hole {
+  left: 4%;
+  top: 112vh;
+  width: 130px;
+  height: 130px;
+}
+
 /* Fixed starfield behind everything; sheets are 1px elements whose stars are
  * box-shadow squares in vmax units, so both orientations stay covered. */
 #m-stars {
@@ -60,7 +109,8 @@ body.is-mobile .gallery-carousel {
 }
 
 .m-hero {
-  min-height: 92vh;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -69,17 +119,45 @@ body.is-mobile .gallery-carousel {
   padding: 0 20px;
 }
 
-.m-hero h1 {
+/* Same look as the desktop #title: a huge "Sarah" flanked by small text. */
+.m-title h1 {
   margin: 0;
-  font-size: clamp(2rem, 9vw, 3.2rem);
-  text-shadow: 0 3px 0 #58aed9;
+  line-height: 1.05;
+  font-size: clamp(3.6rem, 19vw, 6rem);
+  text-shadow: 0 4px 0 #58aed9;
 }
 
-.m-hero p {
+.m-title h1 span:not(.letter) {
+  font-size: 1rem;
+  text-shadow: 0 1px 0 #58aed9;
+}
+
+.m-title p {
   margin: 14px 0 0;
   font-size: 1rem;
-  opacity: 0.85;
   text-shadow: 0 1px 0 #58aed9;
+  opacity: 0;
+  animation: m-fade-in 0.8s ease-out 1.6s forwards;
+}
+
+@keyframes m-fade-in {
+  to { opacity: 0.9; }
+}
+
+/* Intro: a white screen with a round window on the title that rushes
+ * outward, as the desktop load overlay does. Removed when it ends. */
+#m-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--cx) var(--cy), transparent var(--r), #fff calc(var(--r) + 1px));
+  transform-origin: var(--cx) var(--cy);
+  animation: m-intro-out 2.2s ease-in-out 1.1s forwards;
+}
+
+@keyframes m-intro-out {
+  to { transform: scale(14); }
 }
 
 .m-hint {
@@ -100,7 +178,7 @@ body.is-mobile .gallery-carousel {
 .m-system {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 44px;
   padding: 10px 0 30px;
 }
 
@@ -132,9 +210,12 @@ body.is-mobile .gallery-carousel {
 }
 
 .m-planet img {
-  width: 124px;
-  height: 124px;
-  transform: scale(calc(0.84 + 0.26 * var(--focus, 1)));
+  width: 150px;
+  height: 150px;
+  /* Room above and below for the planet at full size, so it doesn't run
+   * into its own label or the planet before it. */
+  margin: 30px 0;
+  transform: scale(calc(0.7 + 0.8 * var(--focus, 1)));
   filter: brightness(calc(0.7 + 0.35 * var(--focus, 1)));
   transition: transform 0.15s linear, filter 0.15s linear;
   image-rendering: pixelated;
@@ -147,20 +228,37 @@ body.is-mobile .gallery-carousel {
  * smaller than the rest at equal size; compensate. */
 .m-planet[data-section="about-me"] img,
 .m-planet[data-section="tech-stack"] img {
-  width: 178px;
-  height: 178px;
-  margin: -24px;
+  width: 216px;
+  height: 216px;
+  margin: -6px -33px;
 }
 
+/* Name and distance styled like the desktop planet labels. */
 .m-planet-name {
+  margin-top: 6px;
   opacity: calc(0.5 + 0.5 * var(--focus, 1));
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  text-shadow: 0 3px 0 #8c58d9;
+  text-shadow: 0 4px 0 #8c58d9;
 }
 
+.m-planet-km {
+  min-height: 1.1em;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
+.m-planet-km span {
+  margin-left: 2px;
+  font-size: 0.5rem;
+}
+
+/* style.css pins every <footer> to the bottom with position: absolute;
+ * this one belongs in the normal flow after the last planet. */
 .m-footer {
-  padding: 26px 0 calc(30px + env(safe-area-inset-bottom));
+  position: static;
+  padding: 90px 0 calc(30px + env(safe-area-inset-bottom));
   text-align: center;
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.65);
@@ -168,6 +266,8 @@ body.is-mobile .gallery-carousel {
 
 /* ================= Section overlay ================= */
 
+/* Sections sit in the same space as the home: a light tint over the scene
+ * instead of an opaque page. The home is hidden while one is open. */
 #m-overlay {
   position: fixed;
   inset: 0;
@@ -175,11 +275,10 @@ body.is-mobile .gallery-carousel {
   display: flex;
   flex-direction: column;
   color: #fff;
-  background:
-    radial-gradient(circle at 20% 22%, rgba(140, 88, 217, 0.16), transparent 46%),
-    radial-gradient(circle at 82% 74%, rgba(88, 174, 217, 0.12), transparent 46%),
-    linear-gradient(224deg, #160a2b 0%, #251458 55%, #0c0519 100%);
+  background: rgba(8, 3, 20, 0.45);
 }
+
+body.m-in-section #m-home { visibility: hidden; }
 
 #m-overlay[hidden] { display: none; }
 
@@ -193,6 +292,8 @@ body.is-mobile .gallery-carousel {
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
+#m-overlay.m-past-head .m-bar-title { opacity: 1; }
+
 /* Once content scrolls under it, the bar gets a solid edge. */
 #m-overlay.m-scrolled .m-bar {
   background: rgba(14, 7, 30, 0.92);
@@ -200,21 +301,21 @@ body.is-mobile .gallery-carousel {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
+/* Glass styling comes from the desktop .glassy-background class. */
 .m-back {
   min-height: 44px;
-  padding: 8px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 10px;
-  background: rgba(28, 48, 65, 0.55);
+  padding: 8px 20px;
   color: #fff;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 1.15rem;
   cursor: pointer;
 }
 
-.m-back:active { background: rgba(28, 48, 65, 0.9); }
+.m-back:active { background-color: rgba(28, 48, 65, 0.9); }
 
 .m-bar-title {
+  opacity: 0;
+  transition: opacity 0.25s;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
   letter-spacing: 0.2em;
@@ -230,10 +331,62 @@ body.is-mobile .gallery-carousel {
   padding: 14px calc(16px + env(safe-area-inset-right)) calc(30px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
 }
 
+/* Section header: the planet you've arrived at, big and half off the edge
+ * (as desktop keeps the zoomed planet beside the content), plus the name. */
+.m-head {
+  position: relative;
+  height: clamp(190px, 32vh, 300px);
+  margin: -14px 0 6px;
+  pointer-events: none;
+}
+
+.m-head-planet {
+  position: absolute;
+  top: -10px;
+  right: -16vw;
+  width: min(76vw, 360px);
+  height: min(76vw, 360px);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 0 40px rgba(140, 88, 217, 0.35));
+  will-change: transform;
+}
+
+.m-head-planet[data-section="about-me"] {
+  top: -16vw;
+  right: -30vw;
+  width: min(106vw, 500px);
+  height: min(106vw, 500px);
+}
+
+.m-head-title {
+  position: absolute;
+  left: 4px;
+  bottom: 10px;
+  margin: 0;
+  font-size: clamp(2.3rem, 11vw, 3rem);
+  text-shadow: 0 4px 0 #8c58d9;
+}
+
+/* The planet in flight between the home and a section header. */
+.m-flyer {
+  position: fixed;
+  z-index: 7000;
+  pointer-events: none;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  transform-origin: center;
+}
+
+/* Links brings its own "Connect With Me" heading; the header replaces it. */
+#m-overlay #links > h1 { display: none; }
+
 /* Desktop sections are absolutely centred for the parallax layers; inside the
  * overlay they become normal flow. */
 #m-overlay .planet-content {
-  position: static;
+  position: relative;
+  inset: auto;   /* drop the desktop top/left centring offsets */
+  z-index: 1;
   transform: none;
   pointer-events: auto;
   width: 100%;
@@ -246,7 +399,20 @@ body.is-mobile .gallery-carousel {
   justify-content: center;
 }
 
-#m-overlay .term { width: 100%; }
+/* Desktop sizes section <main> to 70vw; on a phone use the full width. */
+#m-overlay .planet-content main {
+  width: 100%;
+  margin-top: 0;
+}
+
+#m-overlay .term { width: 100%; max-width: none; }
+#m-overlay .term-bar { justify-content: flex-end; }
+#m-overlay .term-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-left: 70px;   /* clear of the window dots */
+}
 #m-overlay .term-body { height: 56vh; padding: 16px 14px 14px; }
 #m-overlay .term-input,
 #m-overlay .term-row { font-size: 16px; }   /* stops iOS focus zoom */
@@ -304,23 +470,63 @@ body.is-mobile .gallery-carousel {
   opacity: 1;
 }
 
-/* Skills: three constellation groups as chip lists. */
-.m-skills section { margin-bottom: 26px; }
+/* Skills: the desktop constellations, one per group, drawn in on scroll. */
+.m-con { margin-bottom: 22px; }
+
+.m-con-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.m-con-line {
+  stroke-width: 1;
+  stroke-opacity: 0.55;
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+}
+
+.m-con-in .m-con-line { animation: m-con-draw 0.5s ease-out var(--d) forwards; }
+
+@keyframes m-con-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.m-con-star {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.m-con-in .m-con-star { animation: m-con-pop 0.35s ease-out var(--d) forwards; }
+
+@keyframes m-con-pop {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.m-con-glow { animation: m-con-twinkle 2.6s ease-in-out var(--tw) infinite alternate; }
+
+@keyframes m-con-twinkle {
+  from { opacity: 0.08; }
+  to   { opacity: 0.32; }
+}
+
+.m-con-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+}
 
 .m-skills h3 {
-  margin: 0 0 12px;
+  width: max-content;
+  margin: 0 auto 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--c, #7dd3fc);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--c, #7dd3fc);
   text-shadow: 0 0 14px rgba(125, 211, 252, 0.35);
-}
-
-.m-chiprow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
 }
 
 .m-chip {
@@ -336,7 +542,18 @@ body.is-mobile .gallery-carousel {
 /* Gallery: horizontal snap strips + a lightbox. */
 #m-overlay #gallery .moon { display: none; }
 
+.m-moon {
+  width: 58px;
+  height: 58px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+}
+
 .m-gallery h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 6px 0 12px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
@@ -355,13 +572,14 @@ body.is-mobile .gallery-carousel {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Previews share a height and take their width from the photo, so the
+ * whole image shows (portrait shots come out narrow, landscape wide). */
 .m-thumb {
   flex: 0 0 auto;
   scroll-snap-align: start;
-  width: 64vw;
-  max-width: 300px;
-  height: 46vw;
-  max-height: 220px;
+  width: auto;
+  height: 58vw;
+  max-height: 280px;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
@@ -371,9 +589,10 @@ body.is-mobile .gallery-carousel {
 }
 
 .m-thumb img {
-  width: 100%;
+  width: auto;
+  max-width: 86vw;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -522,6 +741,12 @@ body.is-mobile .gallery-carousel {
   .m-hint { animation: none !important; }
   .m-planet img { transform: none; filter: none; transition: none; }
   .m-planet-name { opacity: 1; }
+  .m-galaxy canvas,
+  .m-title p,
+  .m-con-glow { animation: none; }
+  .m-title p { opacity: 0.9; }
+  .m-con-star { opacity: 1; transform: none; animation: none !important; }
+  .m-con-line { stroke-dashoffset: 0; animation: none !important; }
   .m-milestone::before,
   .m-milestone h4,
   .m-milestone p,

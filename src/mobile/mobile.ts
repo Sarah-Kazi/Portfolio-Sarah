@@ -12,11 +12,13 @@ import initializeBlogs from '../interactivity/blogs';
 import initializePlaylists from '../interactivity/playlists';
 import { initializeTerminal } from '../effects/terminal';
 import { PROJECTS, buildCard } from '../interactivity/projects';
-import { GROUPS, STARS } from '../interactivity/skills';
 import { PAINTINGS, CLICKS, type ImageItem } from '../interactivity/gallery';
 import { PHASES, MILESTONES } from '../interactivity/timeline';
+import animateText from '../effects/animatedText';
 import { initTilt, initPlanetFocus, reduceMotion } from './motion';
 import { attachPinchZoom } from './pinchZoom';
+import { buildScene, playIntro } from './scene';
+import { buildConstellations } from './viz';
 
 interface PlanetInfo {
   id: string;      // section element id (= route segment)
@@ -73,11 +75,14 @@ function buildHome(planetInfos: PlanetInfo[]) {
   const home = document.createElement('div');
   home.id = 'm-home';
 
+  // Same title markup as the desktop #title, so animateText letterizes it.
   const hero = document.createElement('header');
   hero.className = 'm-hero';
   hero.innerHTML = `
-    <h1>Hey, I'm Sarah :D</h1>
-    <p>Welcome to my little space on the internet!</p>
+    <div class="m-title">
+      <h1 class="animated-text"><span>Hey, I'm </span>Sarah<span> :D</span></h1>
+      <p>Welcome to my little space on the internet!</p>
+    </div>
     <span class="m-hint">scroll to explore</span>`;
   home.appendChild(hero);
 
@@ -89,7 +94,10 @@ function buildHome(planetInfos: PlanetInfo[]) {
     b.type = 'button';
     b.className = 'm-planet';
     b.dataset.section = info.id;
-    b.innerHTML = `<img src="${info.img}" alt=""><span class="m-planet-name">${info.name}</span>`;
+    b.innerHTML = `
+      <img src="${info.img}" alt="">
+      <span class="m-planet-name">${info.name}</span>
+      <span class="m-planet-km"></span>`;
     b.addEventListener('click', () => navigate(info.id));
     system.appendChild(b);
   }
@@ -101,6 +109,8 @@ function buildHome(planetInfos: PlanetInfo[]) {
   home.appendChild(footer);
 
   document.body.appendChild(home);
+  animateText(hero);
+  playIntro(hero.querySelector('.m-title') as HTMLElement);
   return Array.from(system.children) as HTMLElement[];
 }
 
@@ -109,6 +119,9 @@ function buildHome(planetInfos: PlanetInfo[]) {
 let overlay: HTMLElement;
 let overlayBody: HTMLElement;
 let overlayTitle: HTMLElement;
+let head: HTMLElement;
+let headPlanet: HTMLImageElement;
+let headTitle: HTMLElement;
 
 function buildOverlay() {
   overlay = document.createElement('div');
@@ -116,17 +129,44 @@ function buildOverlay() {
   overlay.hidden = true;
   overlay.innerHTML = `
     <div class="m-bar">
-      <button class="m-back" type="button">&larr; Deorbit</button>
+      <button class="m-back glassy-background" type="button">&larr; Deorbit</button>
       <span class="m-bar-title"></span>
     </div>
-    <div class="m-body"></div>`;
+    <div class="m-body">
+      <header class="m-head">
+        <img class="m-head-planet" alt="">
+        <h1 class="m-head-title"></h1>
+      </header>
+    </div>`;
   overlayBody = overlay.querySelector('.m-body') as HTMLElement;
   overlayTitle = overlay.querySelector('.m-bar-title') as HTMLElement;
+  head = overlay.querySelector('.m-head') as HTMLElement;
+  headPlanet = overlay.querySelector('.m-head-planet') as HTMLImageElement;
+  headTitle = overlay.querySelector('.m-head-title') as HTMLElement;
   overlay.querySelector('.m-back')?.addEventListener('click', deorbit);
-  overlayBody.addEventListener('scroll', () => {
-    overlay.classList.toggle('m-scrolled', overlayBody.scrollTop > 4);
-  }, { passive: true });
+
+  // The header planet drifts up slower than the content (the planet you've
+  // just arrived at, receding), and the bar picks up the section name once
+  // the big title has scrolled away.
+  let raf = 0;
+  const onScroll = () => {
+    raf = 0;
+    const y = overlayBody.scrollTop;
+    overlay.classList.toggle('m-scrolled', y > 4);
+    overlay.classList.toggle('m-past-head', y > head.offsetHeight - 70);
+    if (!reduceMotion) headPlanet.style.transform = `translate3d(0, ${(y * 0.45).toFixed(1)}px, 0)`;
+  };
+  overlayBody.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(onScroll); }, { passive: true });
   document.body.appendChild(overlay);
+}
+
+function setHead(info: PlanetInfo) {
+  headPlanet.src = info.img;
+  headPlanet.dataset.section = info.id;
+  headPlanet.style.transform = '';
+  overlayTitle.textContent = info.name;
+  headTitle.innerHTML = `<span class="animated-text">${info.name}</span>`;
+  animateText(head);
 }
 
 // Each history entry remembers how many steps it sits above the home entry,
@@ -189,18 +229,7 @@ function buildProjects() {
 
 function buildSkills() {
   const section = document.getElementById('tech-stack');
-  if (!section) return;
-  const wrap = document.createElement('div');
-  wrap.className = 'm-skills';
-  GROUPS.forEach((g, gi) => {
-    const block = document.createElement('section');
-    const chips = STARS.filter(s => s.group === gi)
-      .map(s => `<span class="m-chip" style="--rgb:${g.rgb}">${s.name}</span>`)
-      .join('');
-    block.innerHTML = `<h3 style="--c:${g.color}">${g.name}</h3><div class="m-chiprow">${chips}</div>`;
-    wrap.appendChild(block);
-  });
-  section.appendChild(wrap);
+  if (section) buildConstellations(section, overlayBody);
 }
 
 function buildTimeline() {
@@ -320,9 +349,11 @@ function buildLightbox() {
   document.body.appendChild(lightbox);
 }
 
-function buildStrip(parent: HTMLElement, heading: string, set: ImageItem[]) {
+function buildStrip(parent: HTMLElement, heading: string, moonId: string, set: ImageItem[]) {
+  // Each strip is headed by its desktop moon sprite.
   const h = document.createElement('h3');
-  h.textContent = heading;
+  const moon = document.querySelector<HTMLImageElement>(`#${moonId} img`)?.getAttribute('src');
+  h.innerHTML = `${moon ? `<img class="m-moon" src="${moon}" alt="">` : ''}<span>${heading}</span>`;
   parent.appendChild(h);
   const strip = document.createElement('div');
   strip.className = 'm-strip';
@@ -348,76 +379,117 @@ function buildGallery() {
   if (!section) return;
   const wrap = document.createElement('div');
   wrap.className = 'm-gallery';
-  buildStrip(wrap, 'Paintings', PAINTINGS);
-  buildStrip(wrap, 'Clicks', CLICKS);
+  buildStrip(wrap, 'Paintings', 'moon-paintings', PAINTINGS);
+  buildStrip(wrap, 'Clicks', 'moon-clicks', CLICKS);
   section.appendChild(wrap);
   buildLightbox();
 }
 
 // ------------------------------------------------------------------- router
 
-// Screen point of a planet sprite on the home, used as the zoom origin.
-function planetOrigin(id: string): string | null {
-  const img = document.querySelector(`.m-planet[data-section="${id}"] img`);
-  if (!img) return null;
-  const r = img.getBoundingClientRect();
-  return `${r.left + r.width / 2}px ${r.top + r.height / 2}px`;
+// Opening a section flies the tapped planet from the home up into the
+// section header (and back down on close), while the section fades in around
+// it: the mobile take on the desktop zoom into a planet.
+function homePlanetImg(id: string) {
+  return document.querySelector<HTMLImageElement>(`.m-planet[data-section="${id}"] img`);
 }
 
-const ZOOM_FRAMES: Keyframe[] = [
-  { transform: 'scale(0.12)', opacity: 0, borderRadius: '50%' },
-  { transform: 'scale(1)', opacity: 1, borderRadius: '0' },
-];
+function flyPlanet(src: HTMLImageElement, from: DOMRect, to: DOMRect, onDone: () => void) {
+  const clone = document.createElement('img');
+  clone.src = src.src;
+  clone.className = 'm-flyer';
+  Object.assign(clone.style, {
+    left: `${to.left}px`, top: `${to.top}px`, width: `${to.width}px`, height: `${to.height}px`,
+  });
+  document.body.appendChild(clone);
+  const dx = from.left + from.width / 2 - (to.left + to.width / 2);
+  const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+  const sc = from.width / to.width;
+  const anim = clone.animate([
+    { transform: `translate(${dx}px, ${dy}px) scale(${sc})` },
+    { transform: 'none' },
+  ], { duration: 560, easing: 'cubic-bezier(.3, .7, .2, 1)' });
+  const finish = () => { clone.remove(); onDone(); };
+  anim.onfinish = finish;
+  anim.oncancel = finish;
+  return anim;
+}
 
 function wireRouter(planetInfos: PlanetInfo[]) {
-  const titles = new Map(planetInfos.map(p => [p.id, p.name]));
+  const infos = new Map(planetInfos.map(p => [p.id, p]));
   let current: string | null = null;
   let started = false;
-  // Hides the previous section once its zoom-out ends; run early if another
-  // section opens before then.
+  // Hides the previous section once its exit animation ends; run early if
+  // another section opens before then.
   let pendingHide: (() => void) | null = null;
+  let flight: Animation | null = null;
 
   const open = (id: string, animate: boolean) => {
     const section = document.getElementById(id);
-    if (!section) return;
+    const info = infos.get(id);
+    if (!section || !info) return;
     pendingHide?.();
+    flight?.cancel();
     overlay.getAnimations().forEach(a => a.cancel());
-    const origin = animate ? planetOrigin(id) : null;
+
+    const homeImg = animate ? homePlanetImg(id) : null;
+    const from = homeImg?.getBoundingClientRect();
+
+    setHead(info);
     overlayBody.appendChild(section);
     section.style.display = 'block';   // fires the reused modules' observers
-    overlayTitle.textContent = titles.get(id) ?? '';
     overlay.hidden = false;
     overlayBody.scrollTop = 0;
-    overlay.classList.remove('m-scrolled');
+    overlay.classList.remove('m-scrolled', 'm-past-head');
     lockScroll();
-    if (origin) {
-      overlay.style.transformOrigin = origin;
-      overlay.animate(ZOOM_FRAMES, { duration: 420, easing: 'cubic-bezier(.2, .8, .2, 1)' });
-    }
+
+    const done = () => {
+      document.body.classList.add('m-in-section');
+      headPlanet.style.visibility = '';
+      if (homeImg) homeImg.style.visibility = '';
+    };
+    if (!homeImg || !from) { done(); return; }
+
+    headPlanet.style.visibility = 'hidden';
+    homeImg.style.visibility = 'hidden';
+    overlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 380, easing: 'ease-out' });
+    overlayBody.animate(
+      [{ transform: 'translateY(28px)' }, { transform: 'none' }],
+      { duration: 520, easing: 'cubic-bezier(.2, .8, .2, 1)' },
+    );
+    flight = flyPlanet(homeImg, from, headPlanet.getBoundingClientRect(), () => { flight = null; done(); });
   };
 
   const close = (id: string, animate: boolean) => {
     const section = document.getElementById(id);
     if (!lightbox.hidden) lightbox.hidden = true;
-    unlockScroll();   // first, so the planet is back where it shows on screen
+    flight?.cancel();
+    document.body.classList.remove('m-in-section');
+    const from = headPlanet.getBoundingClientRect();
+    unlockScroll();   // first, so the home planet is back where it shows
     const hide = () => {
       pendingHide = null;
       if (section) section.style.display = 'none';
       overlay.hidden = true;
     };
-    const origin = animate ? planetOrigin(id) : null;
-    if (!origin) { hide(); return; }
+    const homeImg = animate ? homePlanetImg(id) : null;
+    if (!homeImg) { hide(); return; }
+
     pendingHide = hide;
-    overlay.style.transformOrigin = origin;
-    const anim = overlay.animate([...ZOOM_FRAMES].reverse(), {
-      duration: 320, easing: 'cubic-bezier(.5, 0, .75, 0)', fill: 'forwards',
+    homeImg.style.visibility = 'hidden';
+    headPlanet.style.visibility = 'hidden';
+    const fade = overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: 'ease-in', fill: 'forwards' });
+    fade.onfinish = () => { if (pendingHide === hide) hide(); fade.cancel(); };
+    flight = flyPlanet(homeImg, from, homeImg.getBoundingClientRect(), () => {
+      flight = null;
+      homeImg.style.visibility = '';
+      headPlanet.style.visibility = '';
     });
-    anim.onfinish = () => { if (pendingHide === hide) hide(); anim.cancel(); };
   };
 
   onRoute(({ section }) => {
     stampDepth(section);
-    const target = section && titles.has(section) ? section : null;
+    const target = section && infos.has(section) ? section : null;
     const animate = started && !reduceMotion;
     started = true;
     if (target === current) return;
@@ -435,6 +507,7 @@ export default function initializeMobile() {
 
   const planetInfos = readPlanets();
 
+  buildScene();
   const stars = buildStars();
   const planets = buildHome(planetInfos);
   buildOverlay();

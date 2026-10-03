@@ -6,7 +6,7 @@ function gaussRand(): number {
   return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
 }
 
-function draw(ctx: CanvasRenderingContext2D, size: number) {
+export function drawGalaxy(ctx: CanvasRenderingContext2D, size: number) {
   const cx = size / 2;
   const cy = size / 2;
   const R  = size * 0.36;
@@ -164,7 +164,7 @@ export default function initializeGalaxy(parallax: Parrallax) {
     canvas.height = size;
     canvas.style.marginLeft = `${-size / 2}px`;
     canvas.style.marginTop  = `${-size / 2}px`;
-    draw(ctx, size);
+    drawGalaxy(ctx, size);
   }
 
   window.addEventListener('resize', resize);
