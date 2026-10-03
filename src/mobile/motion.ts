@@ -69,24 +69,31 @@ export function initTilt(stars: HTMLElement) {
 export function initPlanetFocus(planets: HTMLElement[]) {
   if (!planets.length) return;
 
+  // Measured on the button rather than the image: its box isn't affected by
+  // the image's scale, so the reading doesn't feed back into itself.
+  const items = planets.map(p => ({
+    p,
+    km: p.querySelector<HTMLElement>('.m-planet-km'),
+    label: '',
+  }));
+
   let raf = 0;
   function update() {
     raf = 0;
     const mid = window.innerHeight / 2;
     const reach = window.innerHeight * 0.55;
-    for (const p of planets) {
-      const img = p.querySelector('img') ?? p;
-      const r = img.getBoundingClientRect();
+    // All reads first, then all writes, so the browser lays out once.
+    const rects = items.map(it => it.p.getBoundingClientRect());
+    items.forEach((it, i) => {
+      const r = rects[i];
       const dist = Math.abs(r.top + r.height / 2 - mid);
-      const f = clamp(1 - dist / reach, 0, 1);
-      p.style.setProperty('--focus', f.toFixed(3));
-      const km = p.querySelector('.m-planet-km');
-      if (km) {
-        km.innerHTML = dist < r.height * 0.3
-          ? 'tap to orbit'
-          : `${Math.floor(Math.max(dist * 10 - 400, 0))}<span>km</span>`;
-      }
-    }
+      it.p.style.setProperty('--focus', clamp(1 - dist / reach, 0, 1).toFixed(3));
+      if (!it.km) return;
+      const label = dist < r.height * 0.25
+        ? 'tap to orbit'
+        : `${Math.floor(Math.max(dist * 10 - 400, 0))}<span>km</span>`;
+      if (label !== it.label) { it.km.innerHTML = label; it.label = label; }
+    });
   }
 
   const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };

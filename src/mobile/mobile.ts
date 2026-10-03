@@ -155,6 +155,8 @@ function buildOverlay() {
     overlay.classList.toggle('m-scrolled', y > 4);
     overlay.classList.toggle('m-past-head', y > head.offsetHeight - 70);
     if (!reduceMotion) headPlanet.style.transform = `translate3d(0, ${(y * 0.45).toFixed(1)}px, 0)`;
+    // Fade it out as the content passes over, so text never sits on it.
+    headPlanet.style.opacity = Math.max(0, 1 - y / head.offsetHeight).toFixed(3);
   };
   overlayBody.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(onScroll); }, { passive: true });
   document.body.appendChild(overlay);
@@ -164,6 +166,7 @@ function setHead(info: PlanetInfo) {
   headPlanet.src = info.img;
   headPlanet.dataset.section = info.id;
   headPlanet.style.transform = '';
+  headPlanet.style.opacity = '';
   overlayTitle.textContent = info.name;
   headTitle.innerHTML = `<span class="animated-text">${info.name}</span>`;
   animateText(head);
@@ -202,6 +205,9 @@ function lockScroll() {
   document.body.style.top = `-${savedScrollY}px`;
   document.body.style.left = '0';
   document.body.style.right = '0';
+  // Scroll-driven CSS (the scene's parallax) would read the pinned page as
+  // scrolled to the top; this class switches it to the held inline values.
+  document.body.classList.add('m-locked');
 }
 
 function unlockScroll() {
@@ -210,6 +216,7 @@ function unlockScroll() {
   document.body.style.left = '';
   document.body.style.right = '';
   window.scrollTo(0, savedScrollY);
+  document.body.classList.remove('m-locked');
 }
 
 // ------------------------------------------------- mobile-native sections
@@ -394,7 +401,13 @@ function homePlanetImg(id: string) {
   return document.querySelector<HTMLImageElement>(`.m-planet[data-section="${id}"] img`);
 }
 
-function flyPlanet(src: HTMLImageElement, from: DOMRect, to: DOMRect, onDone: () => void) {
+const EASE_OUT = 'cubic-bezier(.22, 1, .36, 1)';
+const EASE_IN_OUT = 'cubic-bezier(.65, 0, .35, 1)';
+
+function flyPlanet(
+  src: HTMLImageElement, from: DOMRect, to: DOMRect,
+  timing: { duration: number; easing: string }, onDone: () => void,
+) {
   const clone = document.createElement('img');
   clone.src = src.src;
   clone.className = 'm-flyer';
@@ -408,7 +421,7 @@ function flyPlanet(src: HTMLImageElement, from: DOMRect, to: DOMRect, onDone: ()
   const anim = clone.animate([
     { transform: `translate(${dx}px, ${dy}px) scale(${sc})` },
     { transform: 'none' },
-  ], { duration: 560, easing: 'cubic-bezier(.3, .7, .2, 1)' });
+  ], timing);
   const finish = () => { clone.remove(); onDone(); };
   anim.onfinish = finish;
   anim.oncancel = finish;
@@ -423,6 +436,8 @@ function wireRouter(planetInfos: PlanetInfo[]) {
   // another section opens before then.
   let pendingHide: (() => void) | null = null;
   let flight: Animation | null = null;
+  // The open transition's fades on the bar, title and section.
+  let enterAnims: Animation[] = [];
 
   const open = (id: string, animate: boolean) => {
     const section = document.getElementById(id);
@@ -430,7 +445,10 @@ function wireRouter(planetInfos: PlanetInfo[]) {
     if (!section || !info) return;
     pendingHide?.();
     flight?.cancel();
+    enterAnims.forEach(a => a.cancel());
+    enterAnims = [];
     overlay.getAnimations().forEach(a => a.cancel());
+    overlayBody.getAnimations().forEach(a => a.cancel());
 
     const homeImg = animate ? homePlanetImg(id) : null;
     const from = homeImg?.getBoundingClientRect();
@@ -450,20 +468,43 @@ function wireRouter(planetInfos: PlanetInfo[]) {
     };
     if (!homeImg || !from) { done(); return; }
 
-    headPlanet.style.visibility = 'hidden';
     homeImg.style.visibility = 'hidden';
-    overlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 380, easing: 'ease-out' });
-    overlayBody.animate(
-      [{ transform: 'translateY(28px)' }, { transform: 'none' }],
-      { duration: 520, easing: 'cubic-bezier(.2, .8, .2, 1)' },
+    // The header planet itself flies up from the home (rather than a copy on
+    // top of everything), so it's behind the content from the first frame
+    // and nothing has to swap when it lands. Because of that, nothing the
+    // planet sits inside may fade: the tint fades by colour, and the bar,
+    // title and section fade on their own.
+    const to = headPlanet.getBoundingClientRect();
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2);
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+    overlay.animate(
+      [{ backgroundColor: 'rgba(8, 3, 20, 0)' }, { backgroundColor: 'rgba(8, 3, 20, 0.45)' }],
+      { duration: 340, easing: 'ease-out' },
     );
-    flight = flyPlanet(homeImg, from, headPlanet.getBoundingClientRect(), () => { flight = null; done(); });
+    enterAnims.push(overlay.querySelector('.m-bar')!.animate(
+      [{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: 120, fill: 'backwards' },
+    ));
+    for (const el of [headTitle, section]) {
+      enterAnims.push(el.animate(
+        [{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+        { duration: 560, delay: el === section ? 150 : 90, easing: EASE_OUT, fill: 'backwards' },
+      ));
+    }
+    flight = headPlanet.animate(
+      [{ transform: `translate(${dx}px, ${dy}px) scale(${from.width / to.width})` }, { transform: 'none' }],
+      { duration: 640, easing: EASE_OUT },
+    );
+    const landed = () => { flight = null; done(); };
+    flight.onfinish = landed;
+    flight.oncancel = landed;
   };
 
   const close = (id: string, animate: boolean) => {
     const section = document.getElementById(id);
     if (!lightbox.hidden) lightbox.hidden = true;
     flight?.cancel();
+    enterAnims.forEach(a => a.cancel());
+    enterAnims = [];
     document.body.classList.remove('m-in-section');
     const from = headPlanet.getBoundingClientRect();
     unlockScroll();   // first, so the home planet is back where it shows
@@ -478,9 +519,21 @@ function wireRouter(planetInfos: PlanetInfo[]) {
     pendingHide = hide;
     homeImg.style.visibility = 'hidden';
     headPlanet.style.visibility = 'hidden';
-    const fade = overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: 'ease-in', fill: 'forwards' });
-    fade.onfinish = () => { if (pendingHide === hide) hide(); fade.cancel(); };
-    flight = flyPlanet(homeImg, from, homeImg.getBoundingClientRect(), () => {
+    // Content drops away first, then the tint lifts while the planet glides
+    // back into its place on the home.
+    overlayBody.animate(
+      [{ transform: 'none', opacity: 1 }, { transform: 'translateY(18px)', opacity: 0 }],
+      { duration: 220, easing: 'ease-in', fill: 'forwards' },
+    );
+    const fade = overlay.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 300, delay: 80, easing: 'ease-in', fill: 'forwards',
+    });
+    fade.onfinish = () => {
+      if (pendingHide === hide) hide();
+      overlay.getAnimations().forEach(a => a.cancel());
+      overlayBody.getAnimations().forEach(a => a.cancel());
+    };
+    flight = flyPlanet(homeImg, from, homeImg.getBoundingClientRect(), { duration: 540, easing: EASE_IN_OUT }, () => {
       flight = null;
       homeImg.style.visibility = '';
       headPlanet.style.visibility = '';
@@ -502,6 +555,7 @@ function wireRouter(planetInfos: PlanetInfo[]) {
 // --------------------------------------------------------------------- init
 
 export default function initializeMobile() {
+  document.documentElement.classList.add('is-mobile');
   document.body.classList.add('is-mobile');
   document.getElementById('load-overlay')?.remove();
 

@@ -3,7 +3,16 @@
  * desktop experience. The home is a plain scrolling document (vertical solar
  * system); sections open as full-screen overlays. */
 
+/* The page scroller is the root element, so overscroll rules have to sit on
+ * <html>: no bounce or stretch past the ends of the page. */
+html.is-mobile {
+  overscroll-behavior: none;
+  background: #05020c;
+}
+
 body.is-mobile {
+  /* Matches the scene's darkened edge, in case anything ever shows through. */
+  background: #05020c;
   height: auto;
   min-height: 100vh;
   overflow-y: auto;
@@ -26,9 +35,31 @@ body.is-mobile .gallery-carousel {
 /* The desktop scene behind everything: background gradient, the galaxy,
  * vignette + grain, background planets and asteroids (moved over from the
  * hidden #parallax-root). Layers are shifted on scroll by scene.ts. */
+/* Sized to the *large* viewport (browser toolbar hidden), not inset: 0, so
+ * when the toolbar slides away on scroll there's no strip left uncovered. */
 #m-scene {
   position: fixed;
-  inset: 0;
+  /* Bleeds 120px past the top and bottom of the screen, so a toolbar sliding
+   * away, a resize, or a bounce at either end never uncovers the page
+   * behind it while the layer catches up. */
+  top: -120px;
+  left: 0;
+  right: 0;
+  height: calc(100vh + 240px);
+  height: calc(100lvh + 240px);
+}
+
+/* The starfield is transparent (the scene paints the colour), so it just
+ * needs to cover the screen. */
+#m-stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100lvh;
+}
+
+#m-scene {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
@@ -41,6 +72,19 @@ body.is-mobile .gallery-carousel {
   will-change: transform;
 }
 
+@supports (animation-timeline: scroll()) {
+  .m-layer[data-parallax] {
+    animation: m-parallax linear both;
+    animation-timeline: scroll(root block);
+  }
+  body.m-locked .m-layer[data-parallax] { animation: none; }
+}
+
+@keyframes m-parallax {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, var(--shift, 0px), 0); }
+}
+
 .m-galaxy {
   position: absolute;
   left: 50%;
@@ -50,6 +94,7 @@ body.is-mobile .gallery-carousel {
 .m-galaxy canvas {
   display: block;
   opacity: 0.9;
+  will-change: transform;
   animation: m-galaxy-spin 220s linear infinite;
 }
 
@@ -58,16 +103,36 @@ body.is-mobile .gallery-carousel {
   to   { transform: rotate(360deg); }
 }
 
+/* The vignette + grain stays matched to the screen itself (inside the
+ * bleed), so the edges darken exactly as before. */
+#m-scene #background-texture {
+  top: 120px;
+  height: calc(100% - 240px);
+}
+
+/* The bleed areas themselves are painted the vignette's edge colour, so if
+ * one is ever briefly visible it reads as the screen's dark edge. */
+#m-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    #05020c 0, #05020c 120px, transparent 120px,
+    transparent calc(100% - 120px), #05020c calc(100% - 120px));
+}
+
+/* Offsets include the scene's 120px bleed above the screen. */
 #m-scene #bg-gaz-planet {
   left: 60%;
-  top: 6vh;
+  top: calc(6vh + 120px);
   width: 118px;
   height: 118px;
 }
 
 #m-scene #bg-black-hole {
   left: 4%;
-  top: 112vh;
+  top: calc(112vh + 120px);
   width: 130px;
   height: 130px;
 }
@@ -75,8 +140,6 @@ body.is-mobile .gallery-carousel {
 /* Fixed starfield behind everything; sheets are 1px elements whose stars are
  * box-shadow squares in vmax units, so both orientations stay covered. */
 #m-stars {
-  position: fixed;
-  inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
@@ -106,6 +169,11 @@ body.is-mobile .gallery-carousel {
   position: relative;
   z-index: 1;
   color: #fff;
+  /* Planets scaled up near the side would otherwise widen the page; a phone
+   * browser then zooms out to fit, showing more height than the background
+   * covers (the dark band at the bottom). clip trims them without creating
+   * a scroll container, so vertical scrolling is unaffected. */
+  overflow-x: clip;
 }
 
 .m-hero {
@@ -216,12 +284,29 @@ body.is-mobile .gallery-carousel {
    * into its own label or the planet before it. */
   margin: 30px 0;
   transform: scale(calc(0.7 + 0.8 * var(--focus, 1)));
-  filter: brightness(calc(0.7 + 0.35 * var(--focus, 1)));
-  transition: transform 0.15s linear, filter 0.15s linear;
+  opacity: calc(0.6 + 0.4 * var(--focus, 1));
+  will-change: transform, opacity;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
   pointer-events: none;
+}
+
+/* Where supported, the scaling is a scroll-driven animation tied to each
+ * planet's own position in the viewport: it runs on the compositor in step
+ * with the finger, instead of waiting for a scroll event. Peaks when the
+ * planet is centred, matching the --focus fallback above. */
+@supports (animation-timeline: view()) {
+  .m-planet img {
+    animation: m-focus linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+}
+
+@keyframes m-focus {
+  0%, 100% { transform: scale(0.7); opacity: 0.6; }
+  50%      { transform: scale(1.5); opacity: 1; }
 }
 
 /* These two sprites carry a lot of transparent padding, so they render
@@ -311,7 +396,14 @@ body.m-in-section #m-home { visibility: hidden; }
   cursor: pointer;
 }
 
-.m-back:active { background-color: rgba(28, 48, 65, 0.9); }
+.m-back {
+  transition: transform 0.12s ease-out, background-color 0.2s;
+}
+
+.m-back:active {
+  background-color: rgba(28, 48, 65, 0.9);
+  transform: scale(0.96);
+}
 
 .m-bar-title {
   opacity: 0;
@@ -326,6 +418,9 @@ body.m-in-section #m-home { visibility: hidden; }
 .m-body {
   flex: 1;
   overflow-y: auto;
+  /* The header planet hangs off the right edge on purpose; clip it rather
+   * than letting the whole section scroll sideways. */
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 14px calc(16px + env(safe-area-inset-right)) calc(30px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
@@ -336,7 +431,10 @@ body.m-in-section #m-home { visibility: hidden; }
 .m-head {
   position: relative;
   height: clamp(190px, 32vh, 300px);
-  margin: -14px 0 6px;
+  /* Full-bleed (cancelling .m-body's side padding) and clipped sideways, so
+   * the planet reaches the screen edge without making the section scroll. */
+  margin: -14px calc(-16px - env(safe-area-inset-right)) 6px calc(-16px - env(safe-area-inset-left));
+  overflow-x: clip;
   pointer-events: none;
 }
 
@@ -348,7 +446,6 @@ body.m-in-section #m-home { visibility: hidden; }
   height: min(76vw, 360px);
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 0 40px rgba(140, 88, 217, 0.35));
   will-change: transform;
 }
 
@@ -361,7 +458,7 @@ body.m-in-section #m-home { visibility: hidden; }
 
 .m-head-title {
   position: absolute;
-  left: 4px;
+  left: calc(20px + env(safe-area-inset-left));
   bottom: 10px;
   margin: 0;
   font-size: clamp(2.3rem, 11vw, 3rem);
@@ -547,7 +644,6 @@ body.m-in-section #m-home { visibility: hidden; }
   height: 58px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
 }
 
 .m-gallery h3 {
@@ -608,6 +704,17 @@ body.m-in-section #m-home { visibility: hidden; }
 }
 
 .m-lightbox[hidden] { display: none; }
+
+.m-lightbox:not([hidden]) { animation: m-lb-in 0.22s ease-out; }
+.m-lightbox:not([hidden]) img { animation: m-lb-img-in 0.32s cubic-bezier(.22, 1, .36, 1); }
+
+@keyframes m-lb-in {
+  from { opacity: 0; }
+}
+
+@keyframes m-lb-img-in {
+  from { opacity: 0; transform: scale(0.94); }
+}
 
 .m-lightbox img {
   max-width: 94vw;
@@ -739,7 +846,10 @@ body.m-in-section #m-home { visibility: hidden; }
   .m-star-sheet,
   .m-planet,
   .m-hint { animation: none !important; }
-  .m-planet img { transform: none; filter: none; transition: none; }
+  .m-planet img { transform: none; opacity: 1; animation: none !important; }
+  .m-layer[data-parallax] { animation: none !important; }
+  .m-lightbox:not([hidden]),
+  .m-lightbox:not([hidden]) img { animation: none; }
   .m-planet-name { opacity: 1; }
   .m-galaxy canvas,
   .m-title p,

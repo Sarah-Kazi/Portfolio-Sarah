@@ -64,6 +64,31 @@ export function buildScene() {
   if (reduceMotion) return;
 
   const layers = [far, mid];
+
+  // Browsers with scroll-driven animations move these layers in CSS (see
+  // .m-layer[data-parallax]); they need each layer's total travel over the
+  // page's full scroll range. The JS update below still runs: it's the
+  // fallback elsewhere, and holds the layers in place while a section is
+  // open and the page is pinned.
+  // Measured from the home itself rather than the document, which has no
+  // scroll height while a section has the page pinned (e.g. a deep link).
+  const setTravel = () => {
+    const home = document.getElementById('m-home');
+    if (!home) return;
+    const max = Math.max(0, home.offsetHeight - window.innerHeight);
+    for (const l of layers) {
+      l.el.dataset.parallax = '';
+      l.el.style.setProperty('--shift', `${(-max * l.depth).toFixed(1)}px`);
+    }
+  };
+  // The home is built right after the scene; watch it from then on.
+  requestAnimationFrame(() => {
+    const home = document.getElementById('m-home');
+    if (home && typeof ResizeObserver !== 'undefined') new ResizeObserver(setTravel).observe(home);
+    setTravel();
+  });
+  window.addEventListener('resize', setTravel);
+
   let raf = 0;
   const update = () => {
     raf = 0;
