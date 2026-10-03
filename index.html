@@ -16,6 +16,12 @@
     html.deep-post body { background: #000; }
     html.deep-post body > * { visibility: hidden; }
 
+    /* Desktop: the planets are spread around the circle by JS; until then
+       they'd all sit stacked on the title. main.ts adds .scene-ready once
+       they're placed. Deorbit is likewise only hidden by JS. */
+    html:not(.scene-ready) #parallax-root .planet,
+    html:not(.scene-ready) #go-back-button { visibility: hidden; }
+
     /* Phones get their own layout from JS (it adds .is-mobile); until then
        the desktop markup would show half-styled, so keep to the dark space
        colour instead. Same query as MOBILE_QUERY in main.ts. */

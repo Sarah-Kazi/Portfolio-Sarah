@@ -92,6 +92,9 @@ if (isMobile) {
     if (document.querySelector('.planet.active-planet')) navigate(null);
   });
 
+  // Planets are placed and Deorbit hidden; reveal them (see index.html).
+  document.documentElement.classList.add('scene-ready');
+
   startLoadOverlay(() => {
     parallax.startInteraction();
     // Apply any deep-linked URL (e.g. #/blogs/my-post) once the scene is ready.
