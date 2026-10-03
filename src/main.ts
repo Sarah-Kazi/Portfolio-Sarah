@@ -74,7 +74,7 @@ if (isMobile) {
   initializeSkills();
   initializeGallery(parallax);
   initializePlaylists();
-  initializeBlogs(parallax);
+  initializeBlogs(parallax, { readerOnDeepLink: true });
   initializeTimeline();
   initializeTerminal();
   initializeCursor();

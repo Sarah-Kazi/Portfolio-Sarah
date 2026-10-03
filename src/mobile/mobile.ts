@@ -83,7 +83,7 @@ function buildHome(planetInfos: PlanetInfo[]) {
       <h1 class="animated-text"><span>Hey, I'm </span>Sarah<span> :D</span></h1>
       <p>Welcome to my little space on the internet!</p>
     </div>
-    <span class="m-hint">scroll to explore</span>`;
+    <span class="m-hint">scroll to explore<span class="m-hint-arrow" aria-hidden="true">&darr;</span></span>`;
   home.appendChild(hero);
 
   const system = document.createElement('nav');
@@ -460,9 +460,10 @@ function wireRouter(planetInfos: PlanetInfo[]) {
     overlayBody.scrollTop = 0;
     overlay.classList.remove('m-scrolled', 'm-past-head');
     lockScroll();
+    // Starts the home's fade-out right away (see #m-home in mobile.css).
+    document.body.classList.add('m-in-section');
 
     const done = () => {
-      document.body.classList.add('m-in-section');
       headPlanet.style.visibility = '';
       if (homeImg) homeImg.style.visibility = '';
     };

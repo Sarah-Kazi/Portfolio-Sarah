@@ -30,6 +30,7 @@
 .blog-spacer { flex: 1; }
 
 .blog-fs,
+.blog-share,
 .blog-toolbar .blog-back {
   background: none;
   border: none;
@@ -45,6 +46,12 @@
   margin: 0;
 }
 .blog-fs { font-size: 1.05rem; line-height: 1; }
+.blog-share {
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+}
+.blog-share[hidden] { display: none; }
+.blog-share:hover,
 .blog-fs:hover,
 .blog-toolbar .blog-back:hover { color: #9ecbf0; }
 
