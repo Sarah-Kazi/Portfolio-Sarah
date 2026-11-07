@@ -71,7 +71,7 @@
   background: none;
   border: none;
   padding: 0;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
 }
 .tl-node-dot {
   width: 12px;

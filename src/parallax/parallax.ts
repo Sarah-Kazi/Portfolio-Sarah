@@ -1,3 +1,5 @@
+import { reduceMotion } from '../a11y';
+
 export interface Position {
   x: number;
   y: number;
@@ -270,6 +272,8 @@ export default class Parrallax {
   }
 
   public startInteraction() {
+    // Reduced motion: the scene stays put instead of following the pointer.
+    if (reduceMotion) return;
     if (this.isTouchDevice) this.addTouchListener();
     else this.addMouseListener();
     this.lerpInFactorTarget = 1;

@@ -1,3 +1,4 @@
+import { reduceMotion } from '../a11y';
 import Parrallax from '../parallax/parallax';
 
 function gaussRand(): number {
@@ -147,7 +148,7 @@ export default function initializeGalaxy(parallax: Parrallax) {
     'display:block',
     'pointer-events:none',
     'transform-origin:center',
-    'animation:galaxySpin 220s linear infinite',
+    reduceMotion ? '' : 'animation:galaxySpin 220s linear infinite',
     'opacity:0.90',
   ].join(';');
 

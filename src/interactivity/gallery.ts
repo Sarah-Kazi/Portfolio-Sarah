@@ -1,3 +1,6 @@
+import { makePressable } from '../a11y';
+import { play } from '../effects/sound';
+
 
 
 export interface ImageItem {
@@ -12,33 +15,33 @@ interface CarouselConfig {
 }
 
 export const PAINTINGS: ImageItem[] = [
-  { src: '/paintings/1.jpg', title: 'Painting 01' },
-  { src: '/paintings/2.jpg', title: 'Painting 02' },
-  { src: '/paintings/3.jpg', title: 'Painting 03' },
-  { src: '/paintings/4.jpg', title: 'Painting 04' },
-  { src: '/paintings/5.jpg', title: 'Painting 05' },
-  { src: '/paintings/6.jpg', title: 'Painting 06' },
-  { src: '/paintings/7.jpg', title: 'Painting 07' },
-  { src: '/paintings/8.jpg', title: 'Painting 08' },
-  { src: '/paintings/9.jpg', title: 'Painting 09' },
-  { src: '/paintings/10.jpg', title: 'Painting 10' },
-  { src: '/paintings/11.jpg', title: 'Painting 11' },
-  { src: '/paintings/12.jpg', title: 'Painting 12' },
-  { src: '/paintings/13.jpg', title: 'Painting 13' },
-  { src: '/paintings/14.jpg', title: 'Painting 14' },
+  { src: '/paintings/1.webp', title: 'Painting 01' },
+  { src: '/paintings/2.webp', title: 'Painting 02' },
+  { src: '/paintings/3.webp', title: 'Painting 03' },
+  { src: '/paintings/4.webp', title: 'Painting 04' },
+  { src: '/paintings/5.webp', title: 'Painting 05' },
+  { src: '/paintings/6.webp', title: 'Painting 06' },
+  { src: '/paintings/7.webp', title: 'Painting 07' },
+  { src: '/paintings/8.webp', title: 'Painting 08' },
+  { src: '/paintings/9.webp', title: 'Painting 09' },
+  { src: '/paintings/10.webp', title: 'Painting 10' },
+  { src: '/paintings/11.webp', title: 'Painting 11' },
+  { src: '/paintings/12.webp', title: 'Painting 12' },
+  { src: '/paintings/13.webp', title: 'Painting 13' },
+  { src: '/paintings/14.webp', title: 'Painting 14' },
 ];
 
 export const CLICKS: ImageItem[] = [
-  { src: '/clicks/1.jpeg', title: 'Click 01' },
-  { src: '/clicks/2.jpeg', title: 'Click 02' },
-  { src: '/clicks/3.jpeg', title: 'Click 03' },
-  { src: '/clicks/4.jpeg', title: 'Click 04' },
-  { src: '/clicks/5.jpeg', title: 'Click 05' },
-  { src: '/clicks/6.jpeg', title: 'Click 06' },
-  { src: '/clicks/7.jpeg', title: 'Click 07' },
-  { src: '/clicks/8.jpeg', title: 'Click 08' },
-  { src: '/clicks/9.jpeg', title: 'Click 09' },
-  { src: '/clicks/10.jpeg', title: 'Click 10' },
+  { src: '/clicks/1.webp', title: 'Click 01' },
+  { src: '/clicks/2.webp', title: 'Click 02' },
+  { src: '/clicks/3.webp', title: 'Click 03' },
+  { src: '/clicks/4.webp', title: 'Click 04' },
+  { src: '/clicks/5.webp', title: 'Click 05' },
+  { src: '/clicks/6.webp', title: 'Click 06' },
+  { src: '/clicks/7.webp', title: 'Click 07' },
+  { src: '/clicks/8.webp', title: 'Click 08' },
+  { src: '/clicks/9.webp', title: 'Click 09' },
+  { src: '/clicks/10.webp', title: 'Click 10' },
 ];
 
 const CONFIGS: CarouselConfig[] = [
@@ -184,6 +187,7 @@ function anyFullscreen(): boolean {
 function open(id: string) {
   // Re-clicking the same moon toggles its carousel off.
   if (isOpen(id)) { close(id); return; }
+  play('moon');
   indices[id] = 0;
   renderImage(id);
   positionCarousel(id);
@@ -213,6 +217,7 @@ function step(id: string, delta: number) {
   if (!cfg) return;
   const n = cfg.set.length;
   indices[id] = (indices[id] + delta + n) % n;
+  play('step', { vary: 0.05 });
   renderImage(id);
   focusedId = id;
 }
@@ -304,10 +309,12 @@ export default function initializeGallery(parallax?: ParallaxLike) {
   if (moonP) {
     document.body.appendChild(moonP);
     moonP.addEventListener('click', () => open('carousel-paintings'));
+    makePressable(moonP, 'Paintings');
   }
   if (moonC) {
     document.body.appendChild(moonC);
     moonC.addEventListener('click', () => open('carousel-clicks'));
+    makePressable(moonC, 'Photography');
   }
 
   for (const cfg of CONFIGS) {

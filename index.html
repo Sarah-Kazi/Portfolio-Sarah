@@ -37,7 +37,7 @@
     }
   </style>
 
-  <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,16 +56,24 @@
   <meta name="apple-mobile-web-app-title" content="Sarah" />
 
   <title>Sarah Kazi</title>
+  <meta name="description" content="Sarah Kazi's portfolio: projects, skills, paintings, photography and writing, laid out as a little solar system." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sarah Kazi" />
+  <meta property="og:title" content="Sarah Kazi" />
+  <meta property="og:description" content="Projects, skills, paintings, photography and writing, laid out as a little solar system." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sarah Kazi" />
+  <meta name="twitter:description" content="Projects, skills, paintings, photography and writing, laid out as a little solar system." />
 </head>
 
 <body>
   <div id="parallax-root">
     <!-- Linked to generated layers by main.ts -->
     <div id="background-texture"></div>
-    <img id="bg-gaz-planet" class="bg-planet" src="/planet5.gif" alt="Planet">
-    <img id="bg-black-hole" class="bg-planet" src="/planet6.gif" alt="Planet">
-    <img id="bg-asteroid-1" class="bg-asteroid" src="/asteroid1.png" alt="Planet">
-    <img id="bg-asteroid-2" class="bg-asteroid" src="/asteroid2.png" alt="Planet">
+    <img id="bg-gaz-planet" class="bg-planet" src="/planet5.gif" alt="">
+    <img id="bg-black-hole" class="bg-planet" src="/planet6.gif" alt="">
+    <img id="bg-asteroid-1" class="bg-asteroid" src="/asteroid1.png" alt="">
+    <img id="bg-asteroid-2" class="bg-asteroid" src="/asteroid2.png" alt="">
 
     <div id="title" class="fade-initial-1">
       <h1 class="animated-text"><span>Hey, I'm </span>Sarah<span> :D</span></h1>
@@ -73,42 +81,42 @@
     </div>
 
     <div id="planet-1" class="planet" style="--content: about-me;">
-      <img src="/planet11.gif" alt="Planet">
+      <img src="/planet11.gif" alt="">
       <h2>About Me</h2>
       <p></p>
     </div>
     <div id="planet-2" class="planet" style="--content: projects; --anchor-y: 2;">
-      <img src="/planet4.gif" alt="Planet">
+      <img src="/planet4.gif" alt="">
       <h2>Projects</h2>
       <p></p>
     </div>
     <div id="planet-3" class="planet" style="--content: links;">
-      <img src="/planet3.gif" alt="Planet">
+      <img src="/planet3.gif" alt="">
       <h2>Links</h2>
       <p></p>
     </div>
     <div id="planet-4" class="planet" style="--content: tech-stack; --anchor-y: 1.5;">
-      <img src="/planet10.gif" alt="Planet">
+      <img src="/planet10.gif" alt="">
       <h2>Skills</h2>
       <p></p>
     </div>
     <div id="planet-5" class="planet" style="--content: gallery; --anchor-y: 2;">
-      <img src="/planet7.gif" alt="Planet">
+      <img src="/planet7.gif" alt="">
       <h2>Gallery</h2>
       <p></p>
     </div>
     <div id="planet-7" class="planet" style="--content: playlists; --anchor-y: 1.8;">
-      <img src="/planet9.gif" alt="Planet">
+      <img src="/planet9.gif" alt="">
       <h2>Playlists</h2>
       <p></p>
     </div>
     <div id="planet-8" class="planet" style="--content: blogs; --anchor-y: 2.2;">
-      <img src="/planet12.gif" alt="Planet">
+      <img src="/planet12.gif" alt="">
       <h2>Blogs</h2>
       <p></p>
     </div>
     <div id="planet-9" class="planet" style="--content: timeline; --anchor-y: 1.3;">
-      <img src="/planet2.gif" alt="Planet">
+      <img src="/planet2.gif" alt="">
       <h2>Timeline</h2>
       <p></p>
     </div>
@@ -121,16 +129,16 @@
       <h1 class="animated-text">Connect <span>With Me</span></h1>
       <main>
         <div class="links-grid">
-          <a href="https://github.com/Sarah-Kazi" target="_blank" class="link-card link-github">
-            <img src="/github.svg" alt="github logo">
+          <a href="https://github.com/Sarah-Kazi" target="_blank" rel="noopener" class="link-card link-github">
+            <img src="/github.svg" alt="">
             <span>GitHub</span>
           </a>
-          <a href="https://www.linkedin.com/in/sarah-kazi-308784351/" target="_blank" class="link-card link-linkedin">
-            <img src="/linkedin.svg" alt="linkedin logo">
+          <a href="https://www.linkedin.com/in/sarah-kazi-308784351/" target="_blank" rel="noopener" class="link-card link-linkedin">
+            <img src="/linkedin.svg" alt="">
             <span>LinkedIn</span>
           </a>
-          <a href="mailto:sarahkazi12806@gmail.com" target="_blank" class="link-card link-email">
-            <img src="/mail.png" alt="email icon">
+          <a href="mailto:sarahkazi12806@gmail.com" class="link-card link-email">
+            <img src="/mail.png" alt="">
             <span>Email</span>
           </a>
         </div>
@@ -168,11 +176,11 @@
 
     <section id="gallery" class="planet-content gallery-content">
       <div id="moon-paintings" class="moon" data-target="paintings">
-        <img src="/4285984748.gif" alt="Paintings moon">
+        <img src="/4285984748.gif" alt="">
         <h2>Paintings</h2>
       </div>
       <div id="moon-clicks" class="moon" data-target="clicks">
-        <img src="/3744434590.gif" alt="Photography moon">
+        <img src="/3744434590.gif" alt="">
         <h2>Clicks</h2>
       </div>
     </section>
@@ -216,7 +224,7 @@
   </div>
 
   <footer class="fade-initial-1">
-    <p>© 2026 Sarah Kazi</p>
+    <p>© <span id="footer-year">2026</span> Sarah Kazi</p>
   </footer>
 
   <script type="module" src="/src/main.ts"></script>

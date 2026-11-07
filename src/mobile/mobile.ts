@@ -105,7 +105,7 @@ function buildHome(planetInfos: PlanetInfo[]) {
 
   const footer = document.createElement('footer');
   footer.className = 'm-footer';
-  footer.textContent = '© 2026 Sarah Kazi';
+  footer.textContent = `© ${new Date().getFullYear()} Sarah Kazi`;
   home.appendChild(footer);
 
   document.body.appendChild(home);

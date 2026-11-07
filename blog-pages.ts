@@ -154,6 +154,20 @@ export default function blogPages(siteUrl = ''): Plugin {
   return {
     name: 'blog-pages',
 
+    // The homepage's link-preview tags need the same absolute URLs.
+    transformIndexHtml() {
+      const image = absolute(siteUrl, '/og-image.jpg');
+      const url = absolute(siteUrl, '/');
+      return [
+        { tag: 'link', attrs: { rel: 'canonical', href: url }, injectTo: 'head' },
+        { tag: 'meta', attrs: { property: 'og:url', content: url }, injectTo: 'head' },
+        { tag: 'meta', attrs: { property: 'og:image', content: image }, injectTo: 'head' },
+        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' }, injectTo: 'head' },
+        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' }, injectTo: 'head' },
+        { tag: 'meta', attrs: { name: 'twitter:image', content: image }, injectTo: 'head' },
+      ];
+    },
+
     // Dev: render /blogs/<slug> and /blogs/<slug>/ on request.
     configureServer(server) {
       server.middlewares.use((req, res, next) => {

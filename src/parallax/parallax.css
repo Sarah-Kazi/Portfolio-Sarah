@@ -4,6 +4,10 @@
   height: 100vh;
 
   overflow: hidden;
+  /* `hidden` still lets the browser scroll this box to bring a Tab-focused
+   * planet into view, which slides the scene up and shows its bottom edge.
+   * `clip` can't be scrolled at all. */
+  overflow: clip;
 }
 
 .parallax-layer {

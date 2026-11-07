@@ -23,9 +23,12 @@ import initializePlaylists from './interactivity/playlists.ts';
 import initializeBlogs from './interactivity/blogs.ts';
 import initializeTimeline from './interactivity/timeline.ts';
 import { initializeTerminal } from './effects/terminal.ts';
-import { initializeCursor } from './effects/cursor.ts';
+import { initializeSoundShortcut, askAboutSound } from './effects/sound.ts';
 import { startRouter, navigate } from './router.ts';
 import initializeMobile from './mobile/mobile.ts';
+
+const footerYear = document.getElementById('footer-year');
+if (footerYear) footerYear.textContent = String(new Date().getFullYear());
 
 // One branch, decided at load. Phones and touch-only devices get the
 // self-contained mobile experience (src/mobile); everything else gets the
@@ -82,7 +85,14 @@ if (isMobile) {
   document.documentElement.classList.remove('deep-post');
   initializeTimeline();
   initializeTerminal();
-  initializeCursor();
+  initializeSoundShortcut();
+
+  // The desktop scene never scrolls, but the browser will still scroll the page
+  // to bring a Tab-focused planet near the edge into view, which slides the
+  // scene and the footer. Snap it straight back.
+  window.addEventListener('scroll', () => {
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+  });
 
   // Escape deorbits whatever planet is open. Registered after every section so
   // it runs last: gallery/blog get first crack at Escape (closing a carousel or
@@ -102,6 +112,8 @@ if (isMobile) {
 
   startLoadOverlay(() => {
     parallax.startInteraction();
+    // Only on the plain home view; a deep link opens straight into a section.
+    if (!location.hash.replace(/^#\/?/, '')) askAboutSound(document.getElementById('title')!);
     // Apply any deep-linked URL (e.g. #/blogs/my-post) once the scene is ready.
     startRouter();
   }, 3000);

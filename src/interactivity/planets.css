@@ -16,7 +16,7 @@
 
 .planet:not(.active-planet):hover h2 {
   transform: scale(1.1);
-  cursor: pointer;
+  cursor: var(--cursor-hover);
 }
 
 .planet h2 {
@@ -73,7 +73,7 @@
 }
 
 .planet:not(.active-planet) img:hover {
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   filter: drop-shadow(0 2px 0 white) drop-shadow(0 -2px 0 white) drop-shadow(2px 0 0 white) drop-shadow(-2px 0 0 white);
 }
 
@@ -188,7 +188,7 @@
 }
 
 #go-back-button:hover {
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   background-color: rgba(28, 48, 65, 0.855);
 }
 
@@ -222,3 +222,19 @@
 }
 
 
+
+@media (prefers-reduced-motion: reduce) {
+  #bg-asteroid-1,
+  #bg-asteroid-2 {
+    animation: none;
+  }
+}
+
+/* Keyboard focus. Only shows for Tab navigation, not mouse clicks. */
+.planet:focus-visible,
+.moon:focus-visible,
+#go-back-button:focus-visible {
+  outline: 2px solid #67e8f9;
+  outline-offset: 6px;
+  border-radius: 14px;
+}

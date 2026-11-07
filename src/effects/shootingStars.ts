@@ -1,4 +1,5 @@
 import Parrallax from '../parallax/parallax';
+import { reduceMotion } from '../a11y';
 
 interface ShootingStar {
   x: number;
@@ -57,6 +58,7 @@ function drawStar(ctx: CanvasRenderingContext2D, star: ShootingStar) {
 }
 
 export default function initializeShootingStars(parallax: Parrallax) {
+  if (reduceMotion) return;
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
 

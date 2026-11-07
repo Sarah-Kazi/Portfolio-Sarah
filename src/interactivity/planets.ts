@@ -1,6 +1,8 @@
 import animateText from '../effects/animatedText';
 import TemporaryLayersParallax from '../parallax/temporaryLayersParallax';
 import { navigate, onRoute } from '../router';
+import { makePressable, usingKeyboard } from '../a11y';
+import { play } from '../effects/sound';
 
 import './planets.css';
 
@@ -145,18 +147,36 @@ export default function registerPlanetsInteractivity(parallax: TemporaryLayersPa
     planet.addEventListener('click', () => {
       if (!isPlanetFocused(planet)) navigate(contentId);
     });
+    makePressable(planet, planet.querySelector('h2')?.textContent ?? contentId);
+    planet.addEventListener('mouseenter', () => {
+      if (!isPlanetFocused(planet)) play('hover', { vary: 0.08 });
+    });
   }
 
   // Deorbit / go-back closes whatever's open by returning to the home route.
   goBackButton.addEventListener('click', () => navigate(null));
+  makePressable(goBackButton);
 
   // The hash is the source of truth: open/close the matching section to suit.
   let activeId: string | null = null;
   onRoute(({ section }) => {
     const target = section && controllers[section] ? section : null;
     if (target === activeId) return;
+    const closing = activeId;
     if (activeId) controllers[activeId].close();
     if (target) controllers[target].open();
     activeId = target;
+    play(target ? 'open' : 'close');
+
+    if (!usingKeyboard()) return;
+    // Keyboard users land somewhere useful: on Deorbit after opening, and back
+    // on the planet they came from after closing. Waits a frame because other
+    // route handlers may still move Deorbit around, which would drop focus.
+    if (target && goBackButton.style.display !== 'none') {
+      requestAnimationFrame(() => goBackButton.focus({ preventScroll: true }));
+    } else if (!target && closing) {
+      const from = Array.from(planets).find(p => getPlanetContentId(p).trim() === closing);
+      (from as HTMLElement | undefined)?.focus({ preventScroll: true });
+    }
   });
 }

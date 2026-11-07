@@ -125,7 +125,7 @@
   border: none;
   border-bottom: 1px solid rgba(184, 146, 63, 0.12);
   padding: 14px 6px;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   color: #f4ecd8;
 }
 .gr-track-num {
@@ -153,7 +153,7 @@
 .gr-back {
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   padding: 0;
   margin-bottom: 16px;
   font-family: 'JetBrains Mono', monospace;
@@ -179,9 +179,3 @@
   left: calc(50% - 268px);   /* under the disk (left item of the composition) */
   top: calc(50% + 330px);
 }
-
-/* Hide the custom cursor over the cross-origin Spotify iframe (avoids two cursors) */
-body.cursor-over-embed .custom-cursor,
-body.cursor-over-embed .cursor-ring,
-body.cursor-over-embed .cursor-ring-outer,
-body.cursor-over-embed .cursor-trail-container { opacity: 0 !important; }

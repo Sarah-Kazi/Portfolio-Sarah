@@ -163,11 +163,11 @@
 
 .proj-card.visible {
   visibility: visible;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
 }
 
 .proj-card.focused {
-  cursor: default;
+  cursor: var(--cursor-default);
   border-color: rgba(125, 211, 252, 0.5);
   box-shadow:
     0 0 0 1px rgba(125, 211, 252, 0.25),
@@ -511,7 +511,7 @@
 
 .moon {
   position: fixed;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -697,7 +697,7 @@
   color: white;
   font-size: 1.25rem;
   line-height: 1;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   pointer-events: all;
   display: flex;
   align-items: center;
@@ -741,7 +741,7 @@
   color: white;
   font-size: 0.95rem;
   line-height: 1;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   pointer-events: all;
   display: flex;
   align-items: center;
@@ -776,7 +776,7 @@
   color: #fff;
   font-size: 0.82rem;
   line-height: 1;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   pointer-events: all;
   display: flex;
   align-items: center;
@@ -883,7 +883,7 @@
   height: 5px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.32);
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   border: none;
   padding: 0;
   transition:
@@ -916,3 +916,27 @@
 .term-fullscreen .term-body {
   height: calc(100vh - 44px) !important;
 }
+
+/* Terminal: the input is sized to its text so the ghost suggestion sits
+ * right after it (see terminal.ts). */
+.term-input.term-input-fit {
+  flex: 0 1 auto;
+  min-width: 1ch;
+  max-width: 100%;
+}
+.term-ghost {
+  flex: 1;
+  min-width: 0;
+  margin-left: -2px;
+  overflow: hidden;
+  white-space: pre;
+  pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+  color: #585b70;
+}
+
+.tc-dir { color: #a6e3a1; font-weight: 600; }
+.tc-run { cursor: var(--cursor-hover); }
+.tc-run:hover { text-decoration: underline dotted; text-underline-offset: 3px; }
+.tc-label-gap { margin-top: 10px; }
+.tc-hint { display: block; margin-top: 10px; color: #585b70; font-size: 0.75rem; }

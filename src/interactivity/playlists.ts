@@ -42,7 +42,7 @@ export default function initializePlaylists() {
     <div class="gr-root">
       <div class="gr-stage">
         <div class="gr-record-wrap">
-          <img class="gr-record" src="/voyager-golden-record.png" alt="Voyager Golden Record">
+          <img class="gr-record" src="/voyager-golden-record.webp" alt="Voyager Golden Record">
           <div class="gr-arm"><span class="gr-arm-head"></span></div>
         </div>
         <div class="gr-caption">
@@ -78,30 +78,15 @@ export default function initializePlaylists() {
     list.appendChild(b);
   });
 
-  // Hide the custom cursor while the pointer is over the Spotify iframe
-  // (cross-origin → OS cursor + frozen custom cursor = two cursors). Polling
-  // :hover on the embed is race-free, unlike mouseenter/move which the iframe
-  // swallows. Runs only while a playlist is playing.
-  let hoverRaf = 0;
-  function watchEmbedHover() {
-    document.body.classList.toggle('cursor-over-embed', embedHost.matches(':hover'));
-    hoverRaf = requestAnimationFrame(watchEmbedHover);
-  }
-
   function play(i: number) {
     playerTitle.textContent = `${pad(i + 1)} · ${PLAYLISTS[i].title}`;
     embedHost.innerHTML = EMBED(PLAYLISTS[i].spotifyId);
     root.classList.add('playing');
-    cancelAnimationFrame(hoverRaf);
-    watchEmbedHover();
   }
 
   function stopPlay() {
     root.classList.remove('playing');
     embedHost.innerHTML = '';   // lift the needle, stop playback
-    cancelAnimationFrame(hoverRaf);
-    hoverRaf = 0;
-    document.body.classList.remove('cursor-over-embed');
   }
 
   root.querySelector('.gr-back')?.addEventListener('click', stopPlay);

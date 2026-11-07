@@ -2,7 +2,8 @@
 // touch stand-in for desktop mouse parallax), and planets swell as they pass
 // through the middle of the screen.
 
-export const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+import { reduceMotion } from '../a11y';
+export { reduceMotion };
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 

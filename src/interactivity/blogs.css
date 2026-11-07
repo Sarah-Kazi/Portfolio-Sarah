@@ -36,7 +36,7 @@
 .blog-toolbar .blog-back {
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   padding: 4px 8px;
   font-family: 'JetBrains Mono', monospace;
   color: #8f9bb3;
@@ -110,7 +110,7 @@
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   padding: 22px 0;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
 }
 
 .blog-item-title {
